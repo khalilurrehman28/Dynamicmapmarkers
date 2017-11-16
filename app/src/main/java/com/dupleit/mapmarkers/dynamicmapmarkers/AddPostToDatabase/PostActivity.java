@@ -1,12 +1,15 @@
 package com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.location.Location;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +18,10 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.dupleit.mapmarkers.dynamicmapmarkers.R;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 import java.io.IOException;
 
@@ -22,9 +29,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class PostActivity extends AppCompatActivity {
+public class PostActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener{
 
     private static final int REQUEST= 112;
+    private final static int MY_PERMISSION_FINE_LOCATION = 101;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
 
     @OnClick(R.id.floatingActionButton2)
     public void floatingActionButton2Click(){
@@ -66,6 +76,13 @@ public class PostActivity extends AppCompatActivity {
                     Toast.makeText(this, "PERMISSIONS Denied", Toast.LENGTH_LONG).show();
                 }
             }
+            break;
+            case MY_PERMISSION_FINE_LOCATION:
+                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), "This app requires location permissions to be granted", Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            break;
         }
     }
 
@@ -85,6 +102,11 @@ public class PostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
         ButterKnife.bind(this);
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
     }
 
     private void selectAttachment() {
@@ -107,6 +129,59 @@ public class PostActivity extends AppCompatActivity {
             }
             imageView.setImageBitmap(bitmap);
         }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(10); // Update location every second
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_FINE_LOCATION);
+            }
+        }else{
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        if (mLocationRequest!=null){
+            //txtOutput.setText(location.toString());
+            Log.d("Location", ""+location.getLatitude()+"--"+location.getLongitude());
+            //txtOutput.setText();
+        }
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Connect the client.
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Disconnecting the client invalidates it.
+        if (mGoogleApiClient.isConnected())
+            mGoogleApiClient.disconnect();
     }
 
 }
