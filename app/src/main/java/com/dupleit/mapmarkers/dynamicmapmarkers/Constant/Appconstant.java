@@ -5,5 +5,5 @@ package com.dupleit.mapmarkers.dynamicmapmarkers.Constant;
  */
 
 public class Appconstant {
-   public static final String weburl = "http://192.168.1.23/googlemap/";
+   public static final String weburl = "http://192.168.1.23/dynamicmapmarkers/";
 }
