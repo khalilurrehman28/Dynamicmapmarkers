@@ -1,13 +1,11 @@
 
-package com.dupleit.mapmarkers.dynamicmapmarkers.modal;
+package com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.model;
 
-import com.google.android.gms.common.api.Result;
+import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
-public class UsersMaps {
+public class UserPost {
 
     @SerializedName("status")
     @Expose
@@ -18,9 +16,9 @@ public class UsersMaps {
     @SerializedName("message")
     @Expose
     private String message;
-    @SerializedName("data")
+    @SerializedName("PostData")
     @Expose
-    private List<Datum> data = null;
+    private List<PostDatum> postData = null;
 
     public Boolean getStatus() {
         return status;
@@ -46,12 +44,12 @@ public class UsersMaps {
         this.message = message;
     }
 
-    public List<Datum> getData() {
-        return data;
+    public List<PostDatum> getPostData() {
+        return postData;
     }
 
-    public void setData(List<Datum> data) {
-        this.data = data;
+    public void setPostData(List<PostDatum> postData) {
+        this.postData = postData;
     }
 
 }

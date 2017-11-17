@@ -1,19 +1,15 @@
 
-package com.dupleit.mapmarkers.dynamicmapmarkers.modal;
+package com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.model;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.google.maps.android.clustering.ClusterItem;
 
-public class Datum implements ClusterItem {
+public class PostDatum {
 
     @SerializedName("POST_ID")
     @Expose
     private String pOSTID;
-
     @SerializedName("USER_ID_FK")
-
     @Expose
     private String uSERIDFK;
     @SerializedName("POST_IMAGE_URL")
@@ -64,36 +60,6 @@ public class Datum implements ClusterItem {
     @SerializedName("USER_ACTIVE")
     @Expose
     private String uSERACTIVE;
-
-    LatLng userPostLatLang;
-
-    public Datum(String pOSTID, String uSERIDFK, String pOSTIMAGEURL, String pOSTDESCRIPTION, String pOSTBLOCK, String pOSTDELETE, String pOSTDATETIME, String uSERID, String uSERNAME, String uSERTYPE, String uSERIMAGE, String uSERMOBILE, String uSERALTNUMBER, String uSEREMAIL, String uSERPASSWORD, String uSERACTIVE, LatLng userPostLatLang) {
-        this.pOSTID = pOSTID;
-        this.uSERIDFK = uSERIDFK;
-        this.pOSTIMAGEURL = pOSTIMAGEURL;
-        this.pOSTDESCRIPTION = pOSTDESCRIPTION;
-        this.pOSTBLOCK = pOSTBLOCK;
-        this.pOSTDELETE = pOSTDELETE;
-        this.pOSTDATETIME = pOSTDATETIME;
-        this.uSERID = uSERID;
-        this.uSERNAME = uSERNAME;
-        this.uSERTYPE = uSERTYPE;
-        this.uSERIMAGE = uSERIMAGE;
-        this.uSERMOBILE = uSERMOBILE;
-        this.uSERALTNUMBER = uSERALTNUMBER;
-        this.uSEREMAIL = uSEREMAIL;
-        this.uSERPASSWORD = uSERPASSWORD;
-        this.uSERACTIVE = uSERACTIVE;
-        this.userPostLatLang = userPostLatLang;
-    }
-
-    public LatLng getUserPostLatLang() {
-        return userPostLatLang;
-    }
-
-    public void setUserPostLatLang(LatLng userPostLatLang) {
-        this.userPostLatLang = userPostLatLang;
-    }
 
     public String getPOSTID() {
         return pOSTID;
@@ -239,18 +205,4 @@ public class Datum implements ClusterItem {
         this.uSERACTIVE = uSERACTIVE;
     }
 
-    @Override
-    public LatLng getPosition() {
-        return userPostLatLang;
-    }
-
-    @Override
-    public String getTitle() {
-        return uSERNAME;
-    }
-
-    @Override
-    public String getSnippet() {
-        return null;
-    }
 }

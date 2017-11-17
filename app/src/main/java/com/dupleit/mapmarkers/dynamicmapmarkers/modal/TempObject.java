@@ -7,13 +7,13 @@ import retrofit2.Response;
  */
 
 public class TempObject {
-    Response<UsersMaps> response;
+    Response<UsersMapsMarkers> response;
 
-    public TempObject(Response<UsersMaps> response) {
+    public TempObject(Response<UsersMapsMarkers> response) {
         this.response = response;
     }
 
-    public Response<UsersMaps> getResponse() {
+    public Response<UsersMapsMarkers> getResponse() {
         return response;
     }
 
