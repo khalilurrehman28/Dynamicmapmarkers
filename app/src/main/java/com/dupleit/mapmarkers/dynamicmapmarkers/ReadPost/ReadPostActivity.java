@@ -2,8 +2,6 @@ package com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
@@ -16,7 +14,7 @@ import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.APIService;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.ApiClient;
 import com.dupleit.mapmarkers.dynamicmapmarkers.R;
-import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.ReadComments;
+import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.UI.ReadComments;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.model.PostDatum;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.model.UserPost;
 
@@ -54,7 +52,7 @@ public class ReadPostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_show);
         ButterKnife.bind(this);
-        Toast.makeText(this, ""+getIntent().getStringExtra("PostID"), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, ""+getIntent().getStringExtra("PostID"), Toast.LENGTH_SHORT).show();
         UpdateUI(getIntent().getStringExtra("PostID"));
     }
 

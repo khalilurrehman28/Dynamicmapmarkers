@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:id="@+id/userDetail"
+    android:padding="4dp"
+    android:layout_marginStart="2dp"
+    android:layout_marginEnd="2dp"
+    android:layout_marginTop="4dp"
+    android:background="@color/colorWhite"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:id="@+id/thumbnail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="3dip"
+
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="10dip">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/commenterImage"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginRight="2dp"
+            android:background="@drawable/ic_account_circle_black_36dp"
+            android:contentDescription="@string/app_name" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/Rl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/thumbnail"
+        android:layout_centerVertical="true">
+
+        <TextView
+            android:id="@+id/commentBy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mandeep singh"
+            android:textStyle="bold"
+            android:textColor="@color/colorBlack"
+            android:textSize="16dip" />
+
+
+        <TextView
+            android:id="@+id/commentText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ambala cantt"
+            android:textColor="@color/colorBlack"
+            android:typeface="sans"
+            android:textSize="16dip"
+            android:visibility="visible"
+            android:layout_below="@id/commentBy" />
+
+        <TextView
+            android:id="@+id/commentTime"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/commentText"
+            android:textColor="@color/colorDarkGrey"
+            android:textSize="14dip"
+            android:text="2 min " />
+
+
+    </RelativeLayout>
+</RelativeLayout>

@@ -30,7 +30,7 @@
             android:theme="@style/Base.Theme.AppCompat" />
         <activity android:name=".AddPostToDatabase.UI.PostActivity"/>
         <activity android:name=".ReadPost.ReadPostActivity" />
-        <activity android:name=".ReadComments.ReadComments"/>
+        <activity android:name=".ReadComments.UI.ReadComments"/>
 
         <meta-data
             android:name="com.google.android.gms.version"

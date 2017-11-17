@@ -6,4 +6,5 @@
     <color name="colorDarkGrey">#595959</color>
     <color name="colorLiked">#549AF0</color>
     <color name="colorBlack">#000000</color>
+    <color name="colorWhite">#ffffff</color>
 </resources>

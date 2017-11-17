@@ -3,16 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:emojicon="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/background"
+    android:background="@color/colorWhite"
     android:id="@+id/root_view"
     android:elevation="4dp"
     android:orientation="vertical">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/messageRecyclerView"
-        android:paddingLeft="8dp"
-        android:paddingRight="4dp"
-        android:paddingBottom="6dp"
+        android:paddingBottom="3dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/linearLayout"
@@ -24,9 +22,11 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:layout_marginRight="6dp"
-        android:layout_marginLeft="6dp"
-        android:layout_marginBottom="8dp">
+        android:layout_marginRight="3dp"
+        android:layout_marginLeft="3dp"
+        android:padding="2dp"
+        android:background="@drawable/commenttextstyle"
+        android:layout_marginBottom="4dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -35,14 +35,13 @@
             android:minHeight="50dp"
             android:orientation="horizontal"
             android:layout_gravity="bottom"
-            android:paddingBottom="15dp"
+            android:paddingBottom="12dp"
             android:paddingLeft="12dp"
-            android:paddingRight="20dp"
-            android:background="@drawable/input">
+            android:paddingRight="12dp">
 
             <ImageView
-                android:layout_width="26dp"
-                android:layout_height="26dp"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
                 android:id="@+id/emoji_btn"
                 android:layout_gravity="bottom"
                 android:src="@drawable/input_emoji"/>
@@ -55,7 +54,8 @@
                 android:layout_marginLeft="12dp"
                 emojicon:emojiconSize="24sp"
                 android:paddingTop="6dp"
-                android:hint="Type your message"
+                android:maxHeight="150dp"
+                android:hint="Type your comment..."
                 android:singleLine="false"
                 android:inputType="textMultiLine|textCapSentences"
                 android:textSize="18sp"
@@ -67,17 +67,26 @@
         <ImageButton
             android:id="@+id/sendButton"
             android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_height="match_parent"
             android:layout_gravity="bottom"
             android:enabled="false"
-            android:background="@drawable/input_circle_normal"
+            android:visibility="gone"
+            android:background="@drawable/buttonshape"
             android:src="@drawable/input_send"/>
+        <ImageButton
+            android:id="@+id/selectImage"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="bottom"
+            android:enabled="false"
+            android:visibility="visible"
+            android:background="@drawable/buttonshape"
+            android:src="@drawable/ic_photo_camera"/>
 
     </LinearLayout>
     <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:id="@+id/progressBar"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"/>

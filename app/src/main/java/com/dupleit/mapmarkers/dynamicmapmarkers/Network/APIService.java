@@ -1,6 +1,7 @@
 package com.dupleit.mapmarkers.dynamicmapmarkers.Network;
 
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.Model.UploadImageResponse;
+import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.CommentResponse;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.model.UserPost;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.UsersMapsMarkers;
 
@@ -28,5 +29,13 @@ public interface APIService {
              @Part MultipartBody.Part file, @Part("USER_ID") int USER_ID,
              @Part("POST_DESCRIPTION") String POST_DESCRIPTION, @Part("POST_LATITUDE") double POST_LATITUDE,
              @Part("POST_LONGITUDE") double POST_LONGITUDE);
+
+    @FormUrlEncoded
+    @POST("getpostcomment_request")
+    Call<CommentResponse> getpostcomment_request(@Field("POST_ID") int postID);
+
+    @FormUrlEncoded
+    @POST("addcommenttopost_request")
+    Call<CommentResponse> addcommenttopost_request(@Field("POST_ID") int postID,@Field("USER_ID") int USER_ID,@Field("COMMENT") String Comment);
 
 }
