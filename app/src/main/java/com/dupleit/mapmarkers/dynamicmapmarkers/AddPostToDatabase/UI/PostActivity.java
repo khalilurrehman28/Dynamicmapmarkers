@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.Model.UploadImageResponse;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.ProgressRequestBody;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.checkInternetState;
+import com.dupleit.mapmarkers.dynamicmapmarkers.MainActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.APIService;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.ApiClient;
 import com.dupleit.mapmarkers.dynamicmapmarkers.R;
@@ -133,7 +134,9 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
                         //new PrefManager(PostActivity.this).saveUserImage(response.body().getMessage());
                         Log.e("Message true", response.body().getMessage());
                         Toast.makeText(PostActivity.this, "Post uploaded successfully", Toast.LENGTH_SHORT).show();
-
+                        Intent intent= new Intent(PostActivity.this,MainActivity.class);
+                        // intent.putExtra("studentId",getStudentID());
+                        startActivity(intent);
                     } else {
                         Toast.makeText(PostActivity.this, "post not uploaded", Toast.LENGTH_SHORT).show();
                         Log.e("Message", response.body().getMessage());

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -52,8 +53,11 @@ public class ReadPostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_show);
         ButterKnife.bind(this);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         //Toast.makeText(this, ""+getIntent().getStringExtra("PostID"), Toast.LENGTH_SHORT).show();
         UpdateUI(getIntent().getStringExtra("PostID"));
+        setTitle("Profile");
     }
 
     private void UpdateUI(String postID) {
@@ -90,6 +94,16 @@ public class ReadPostActivity extends AppCompatActivity {
                 Log.d("onFailure", t.toString());
             }
         });
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            // finish the activity
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
 }

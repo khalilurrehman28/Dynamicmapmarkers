@@ -10,11 +10,16 @@ import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.load.data.LocalUriFetcher;
+import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.UI.PostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.ReadPostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.backgroundOperations.backgroundoperation;
@@ -39,6 +44,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback,
@@ -47,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements
         ClusterManager.OnClusterItemClickListener<Datum>,
         ClusterManager.OnClusterItemInfoWindowClickListener<Datum> {
 
+    static final float COORDINATE_OFFSET = 0.00002f;
     private ClusterManager<Datum> mClusterManager;
     private GoogleMap mMap;
     @Override
@@ -57,7 +64,25 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         setUpMap();
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflate = getMenuInflater();
+        inflate.inflate  (R.menu.menu_home, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.uploadPost:
+                Intent intent= new Intent(this,PostActivity.class);
+               // intent.putExtra("studentId",getStudentID());
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
     private void setUpMap() {
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
     }
@@ -189,9 +214,30 @@ public class MainActivity extends AppCompatActivity implements
 
         // Create the builder to collect all essential cluster items for the bounds.
         LatLngBounds.Builder builder = LatLngBounds.builder();
+        List<LatLng> userPos = new ArrayList<>();
         for (ClusterItem item : cluster.getItems()) {
-            builder.include(item.getPosition());
+
+            if (userPos.contains(item.getPosition())){
+                Random r = new Random();
+                int i1 = r.nextInt(3 - 1) + 1;
+                LatLng latLng= item.getPosition();
+                double lat = latLng.latitude;
+                double lang = latLng.longitude;
+                Log.d("latlangBefore",""+lat+"--"+lang);
+                lat = lat - i1 * COORDINATE_OFFSET;
+                lang = lang - i1 * COORDINATE_OFFSET;
+                Log.d("latlangAfter",""+lat+"--"+lang);
+                latLng = new LatLng(lat,lang);
+                userPos.add(latLng);
+            }else{
+                userPos.add(item.getPosition());
+            }
         }
+
+        for (LatLng usr : userPos){
+            builder.include(usr);
+        }
+
         // Get the LatLngBounds
         final LatLngBounds bounds = builder.build();
 
@@ -208,6 +254,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onClusterInfoWindowClick(Cluster<Datum> cluster) {
         // Does nothing, but you could go to a list of the users.
+
+        //LatLngBounds.Builder builder = LatLngBounds.builder();
+
     }
 
     @Override
