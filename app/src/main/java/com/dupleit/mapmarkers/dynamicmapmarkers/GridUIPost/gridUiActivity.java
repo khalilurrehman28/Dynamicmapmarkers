@@ -2,6 +2,7 @@ package com.dupleit.mapmarkers.dynamicmapmarkers.GridUIPost;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -52,7 +53,7 @@ public class gridUiActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
 
-        this.hitApi();
+        this.hitApi(getIntent().getParcelableArrayExtra("userlatlang"));
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(gridUiActivity.this, recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
@@ -71,11 +72,15 @@ public class gridUiActivity extends AppCompatActivity {
         return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, i, r.getDisplayMetrics()));
     }
 
-    private void hitApi() {
+    private void hitApi(Parcelable[] userlatlangs) {
         if (!checkInternetState.getInstance(gridUiActivity.this).isOnline()) {
             Toast.makeText(this, "Please check your internet connection.", Toast.LENGTH_SHORT).show();
 
         }else {
+
+            for (int i = 0; i <userlatlangs.length ; i++) {
+                Log.d("userLatLang",""+userlatlangs[i]);
+            }
 
            /* APIService service = ApiClient.getClient().create(APIService.class);
             Call<UsersMapsMarkers> userCall = service.getpostonlatlang_request(userLatLang);

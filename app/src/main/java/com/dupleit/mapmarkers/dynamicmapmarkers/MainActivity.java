@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Parcelable;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 import com.bumptech.glide.load.data.LocalUriFetcher;
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.UI.PostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
+import com.dupleit.mapmarkers.dynamicmapmarkers.GridUIPost.gridUiActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.APIService;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.ApiClient;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.ReadPostActivity;
@@ -254,21 +256,9 @@ public class MainActivity extends AppCompatActivity implements
         for (LatLng userMarkers: userLatLang) {
             Log.d("Userlatlang",""+userMarkers);
         }*/
-        APIService service = ApiClient.getClient().create(APIService.class);
-        Call<UsersMapsMarkers> userCall = service.getpostonlatlang_request(userLatLang);
-        userCall.enqueue(new Callback<UsersMapsMarkers>() {
-            @Override
-            public void onResponse(Call<UsersMapsMarkers> call, retrofit2.Response<UsersMapsMarkers> response) {
-                if (response.isSuccessful()){
+        Intent i = new Intent(MainActivity.this, gridUiActivity.class);
+        i.putParcelableArrayListExtra("userlatlang", (ArrayList<? extends Parcelable>) userLatLang);
 
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UsersMapsMarkers> call, Throwable t) {
-                Log.d("onFailure", t.toString());
-            }
-        });
 
 
     }
