@@ -4,10 +4,15 @@ import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.Model.UploadIm
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.CommentResponse;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.model.UserPost;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.UsersMapsMarkers;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.List;
+import java.util.Map;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
+import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
@@ -38,4 +43,7 @@ public interface APIService {
     @POST("addcommenttopost_request")
     Call<CommentResponse> addcommenttopost_request(@Field("POST_ID") int postID,@Field("USER_ID") int USER_ID,@Field("COMMENT") String Comment);
 
+    @FormUrlEncoded
+    @POST("getpostonlatlang_request")
+    Call<UsersMapsMarkers> getpostonlatlang_request(@Field("Userlatlang[]") List<LatLng> markerList);
 }

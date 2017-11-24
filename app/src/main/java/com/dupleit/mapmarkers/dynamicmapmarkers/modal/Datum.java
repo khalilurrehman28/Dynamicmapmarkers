@@ -1,6 +1,9 @@
 
 package com.dupleit.mapmarkers.dynamicmapmarkers.modal;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -251,6 +254,7 @@ public class Datum implements ClusterItem {
 
     @Override
     public String getSnippet() {
-        return null;
+        return pOSTDESCRIPTION;
     }
+
 }

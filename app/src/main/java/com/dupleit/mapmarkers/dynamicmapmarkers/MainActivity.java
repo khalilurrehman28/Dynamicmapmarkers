@@ -21,9 +21,13 @@ import android.widget.Toast;
 import com.bumptech.glide.load.data.LocalUriFetcher;
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.UI.PostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Network.APIService;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Network.ApiClient;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.ReadPostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.backgroundOperations.backgroundoperation;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.Datum;
+import com.dupleit.mapmarkers.dynamicmapmarkers.modal.TempObject;
+import com.dupleit.mapmarkers.dynamicmapmarkers.modal.UsersMapsMarkers;
 import com.dupleit.mapmarkers.dynamicmapmarkers.multiPIcs.MultiDrawable;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -46,6 +50,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+
 public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         ClusterManager.OnClusterClickListener<Datum>,
@@ -53,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements
         ClusterManager.OnClusterItemClickListener<Datum>,
         ClusterManager.OnClusterItemInfoWindowClickListener<Datum> {
 
-    static final float COORDINATE_OFFSET = 0.00002f;
+    static final float COORDINATE_OFFSET = 0.002f;
     private ClusterManager<Datum> mClusterManager;
     private GoogleMap mMap;
     @Override
@@ -170,14 +180,14 @@ public class MainActivity extends AppCompatActivity implements
         protected void onBeforeClusterRendered(Cluster<Datum> cluster, MarkerOptions markerOptions) {
             // Draw multiple people.
             // Note: this method runs on the UI thread. Don't spend too much time in here (like in this example).
-            List<Drawable> profilePhotos = new ArrayList<Drawable>(Math.min(4, cluster.getSize()));
+            List<Drawable> profilePhotos = new ArrayList<Drawable>(Math.min(1, cluster.getSize()));
             int width = mDimension;
             int height = mDimension;
 
             for (Datum p : cluster.getItems()) {
                 // Draw 4 at most.
-                if (profilePhotos.size() == 4) break;
-                Drawable drawable = null;
+                if (profilePhotos.size() == 2) break;
+                    Drawable drawable = null;
                 try {
                     drawable = new BitmapDrawable(getResources(),convertUrlToDrawable(p.getUSERIMAGE()));
                 } catch (IOException e) {
@@ -197,58 +207,70 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         protected boolean shouldRenderAsCluster(Cluster cluster) {
             // Always render clusters.
-            return cluster.getSize() > 1;
+            return cluster.getSize() >= 3;
         }
     }
 
 
     @Override
     public boolean onClusterClick(Cluster<Datum> cluster) {
-        // Show a toast with some info when the cluster is clicked.
-        String firstName = cluster.getItems().iterator().next().getUSERNAME();
-
-        Toast.makeText(this, cluster.getSize() + " (including " + firstName + ")", Toast.LENGTH_SHORT).show();
-
         // Zoom in the cluster. Need to create LatLngBounds and including all the cluster items
         // inside of bounds, then animate to center of the bounds.
-
         // Create the builder to collect all essential cluster items for the bounds.
-        LatLngBounds.Builder builder = LatLngBounds.builder();
-        List<LatLng> userPos = new ArrayList<>();
-        for (ClusterItem item : cluster.getItems()) {
+        Log.d("Zoom",""+mMap.getCameraPosition().zoom);
+        List<LatLng> userLatLang = new ArrayList<>();
+        if (mMap.getCameraPosition().zoom >=19.0 && mMap.getCameraPosition().zoom<=21.0){
+            for (ClusterItem item : cluster.getItems()) {
+                Log.d("User",""+item.getTitle());
+                userLatLang.add(item.getPosition());
+            }
 
-            if (userPos.contains(item.getPosition())){
-                Random r = new Random();
-                int i1 = r.nextInt(3 - 1) + 1;
-                LatLng latLng= item.getPosition();
-                double lat = latLng.latitude;
-                double lang = latLng.longitude;
-                Log.d("latlangBefore",""+lat+"--"+lang);
-                lat = lat - i1 * COORDINATE_OFFSET;
-                lang = lang - i1 * COORDINATE_OFFSET;
-                Log.d("latlangAfter",""+lat+"--"+lang);
-                latLng = new LatLng(lat,lang);
-                userPos.add(latLng);
-            }else{
-                userPos.add(item.getPosition());
+            gotonextPage(userLatLang);
+
+        }else{
+            // Show a toast with some info when the cluster is clicked.
+            String firstName = cluster.getItems().iterator().next().getUSERNAME();
+            Toast.makeText(this, cluster.getSize() + " (including " + firstName + ")", Toast.LENGTH_SHORT).show();
+            LatLngBounds.Builder builder = LatLngBounds.builder();
+            for (ClusterItem item : cluster.getItems()) {
+                builder.include(item.getPosition());
+            }
+            // Get the LatLngBounds
+            final LatLngBounds bounds = builder.build();
+            // Animate camera to the bounds
+            try {
+                getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 7));
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
-        for (LatLng usr : userPos){
-            builder.include(usr);
-        }
-
-        // Get the LatLngBounds
-        final LatLngBounds bounds = builder.build();
-
-        // Animate camera to the bounds
-        try {
-            getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         return true;
+    }
+
+    private void gotonextPage(List<LatLng> userLatLang) {
+        /*
+        for (LatLng userMarkers: userLatLang) {
+            Log.d("Userlatlang",""+userMarkers);
+        }*/
+        APIService service = ApiClient.getClient().create(APIService.class);
+        Call<UsersMapsMarkers> userCall = service.getpostonlatlang_request(userLatLang);
+        userCall.enqueue(new Callback<UsersMapsMarkers>() {
+            @Override
+            public void onResponse(Call<UsersMapsMarkers> call, retrofit2.Response<UsersMapsMarkers> response) {
+                if (response.isSuccessful()){
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UsersMapsMarkers> call, Throwable t) {
+                Log.d("onFailure", t.toString());
+            }
+        });
+
+
     }
 
     @Override
@@ -273,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     protected void startDemo() {
-        getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 9.5f));
+        //getMap().moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(51.503186, -0.126446), 9.5f));
         mClusterManager = new ClusterManager<Datum>(this, getMap());
         mClusterManager.setRenderer(new PersonRenderer());
         getMap().setOnCameraIdleListener(mClusterManager);
@@ -284,6 +306,7 @@ public class MainActivity extends AppCompatActivity implements
         mClusterManager.setOnClusterItemClickListener(this);
         mClusterManager.setOnClusterItemInfoWindowClickListener(this);
         mClusterManager.clearItems();
+        getMap().setOnCameraIdleListener(mClusterManager);
     }
 
     private Bitmap convertUrlToDrawable(String urlResource) throws IOException {
