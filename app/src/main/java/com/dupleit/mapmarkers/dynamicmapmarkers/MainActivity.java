@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements
             // Set the info window to show their name.
             Drawable draw = null;
             try {
-                draw = new BitmapDrawable(getResources(),convertUrlToDrawable(person.getUSERIMAGE()));
+                draw = new BitmapDrawable(getResources(),convertUrlToDrawable(person.getPOSTIMAGEURL()));
             } catch (IOException e) {
                 e.printStackTrace();
             }
