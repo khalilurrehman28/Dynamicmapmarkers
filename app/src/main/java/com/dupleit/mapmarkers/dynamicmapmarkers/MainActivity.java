@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements
         }*/
         Intent i = new Intent(MainActivity.this, gridUiActivity.class);
         i.putParcelableArrayListExtra("userlatlang", (ArrayList<? extends Parcelable>) userLatLang);
-
+        startActivity(i);
     }
 
     @Override

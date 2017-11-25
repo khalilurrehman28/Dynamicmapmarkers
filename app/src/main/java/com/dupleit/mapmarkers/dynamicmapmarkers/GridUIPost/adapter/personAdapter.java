@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
 import com.dupleit.mapmarkers.dynamicmapmarkers.R;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.Datum;
 
@@ -51,11 +53,7 @@ public class personAdapter extends RecyclerView.Adapter<personAdapter.MyViewHold
     @Override
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         final Datum person = albumList.get(position);
-
-
-
-
-
+        Glide.with(mContext).load(Appconstant.weburl+person.getPOSTIMAGEURL()).into(holder.personImage);
 
     }
 

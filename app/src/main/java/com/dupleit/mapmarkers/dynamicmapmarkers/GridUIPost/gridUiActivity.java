@@ -1,5 +1,6 @@
 package com.dupleit.mapmarkers.dynamicmapmarkers.GridUIPost;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import com.dupleit.mapmarkers.dynamicmapmarkers.GridUIPost.adapter.personAdapter
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.APIService;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.ApiClient;
 import com.dupleit.mapmarkers.dynamicmapmarkers.R;
+import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.ReadPostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.RecyclerTouchListener;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.Datum;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.UsersMapsMarkers;
@@ -39,23 +41,29 @@ public class gridUiActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grid_ui);
+        initilize();
     }
-    private void initilize(View v) {
-        personList = new ArrayList<>();
+    private void initilize() {
+        ArrayList<LatLng> coordinates = getIntent().getParcelableArrayListExtra("userlatlang");
+        ArrayList<LatLng> corDin = new ArrayList<>();
+        for (LatLng data: coordinates) {
+            Log.d("userDataLatLang",""+data);
+            corDin.add(new LatLng(data.latitude,data.longitude));
+        }
 
+        this.hitApi(corDin);
+        personList = new ArrayList<>();
         adapter = new personAdapter(this, personList);
+        recyclerView = findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getApplicationContext(), 2);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(10), true));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
-
-        ArrayList<LatLng> coordinates = getIntent().getParcelableArrayListExtra("userlatlang");
-        this.hitApi(coordinates);
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(gridUiActivity.this, recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, int position) {
-
+                startActivity(new Intent(gridUiActivity.this, ReadPostActivity.class).putExtra("PostID",personList.get(position).getPOSTID()));
             }
 
             @Override
@@ -75,24 +83,24 @@ public class gridUiActivity extends AppCompatActivity {
             Toast.makeText(this, "Please check your internet connection.", Toast.LENGTH_SHORT).show();
 
         }else {
-
             APIService service = ApiClient.getClient().create(APIService.class);
             Call<UsersMapsMarkers> userCall = service.getpostonlatlang_request(userlatlangs);
             userCall.enqueue(new Callback<UsersMapsMarkers>() {
                 @Override
                 public void onResponse(Call<UsersMapsMarkers> call, Response<UsersMapsMarkers> response) {
-
                     Log.d("homework"," "+response.body().getStatus());
                     if (response.isSuccessful()){
                         if (response.body().getStatus()) {
                             List<Datum> users = response.body().getData();
                             for (Datum data: users) {
                                 Log.d("userData",""+data.getPOSTID());
+                                LatLng latLng = new LatLng(Double.parseDouble(data.getPOSTLATITUDE()),Double.parseDouble(data.getPOSTLONGITUDE()));
+                                personList.add(new Datum(data.getPOSTID(),data.getUSERID(),data.getPOSTIMAGEURL(),data.getPOSTDESCRIPTION(),data.getPOSTBLOCK(),data.getPOSTDELETE(),data.getPOSTDATETIME(),data.getUSERID(),data.getUSERNAME(),data.getUSERTYPE(),data.getUSERIMAGE(),data.getUSERMOBILE(),data.getUSERALTNUMBER(),data.getUSEREMAIL(),data.getUSERPASSWORD(),data.getUSERACTIVE(),latLng));
                             }
-
+                            adapter.notifyDataSetChanged();
                         }else{
-
-
+                            Toast.makeText(gridUiActivity.this, "Failed Query", Toast.LENGTH_SHORT).show();
+                            Log.d("userMessage",""+response.body().getMessage());
                         }
                     }else{
                         Toast.makeText(gridUiActivity.this, "Unable to connect to api", Toast.LENGTH_SHORT).show();
@@ -101,12 +109,10 @@ public class gridUiActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<UsersMapsMarkers> call, Throwable t) {
-                    //hidepDialog();
-                    //swipeRefreshLayout.setRefreshing(false);
                     Log.d("onFailure", t.toString());
                 }
             });
         }
-        adapter.notifyDataSetChanged();
+
     }
 }
