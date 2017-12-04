@@ -65,13 +65,13 @@ public class backgroundoperation extends AsyncTask<Void, TempObject, String> {
         super.onProgressUpdate(value);
         retrofit2.Response<UsersMapsMarkers> response = value[0].getResponse();
         List<Datum> objUser = response.body().getData();
-        List<Datum> objUser1 = new ArrayList<>();
+        //List<Datum> objUser1 = new ArrayList<>();
         //List<Datum> objUser1Check = new ArrayList<>();
         Double lat =  0.0;
         Double lang = 0.0;
         int count = 0;
-        float COORDINATE_OFFSET = 0.0002f;
-        List<LatLng> userPos = new ArrayList<>();
+     /*   float COORDINATE_OFFSET = 0.0002f;
+        List<LatLng> userPos = new ArrayList<>();*/
 
         for (Datum quizShow : objUser) {
             LatLng latLng = new LatLng(Double.parseDouble(quizShow.getPOSTLATITUDE()),Double.parseDouble(quizShow.getPOSTLONGITUDE()));
@@ -79,10 +79,10 @@ public class backgroundoperation extends AsyncTask<Void, TempObject, String> {
             lang = lang+Double.parseDouble(quizShow.getPOSTLONGITUDE());
             //userPos.add(latLng);
             Log.d("latlangServer",""+latLng);
-            objUser1.add(new Datum(quizShow.getPOSTID(),quizShow.getUSERID(),quizShow.getPOSTIMAGEURL(),quizShow.getPOSTDESCRIPTION(),quizShow.getPOSTBLOCK(),quizShow.getPOSTDELETE(),quizShow.getPOSTDATETIME(),quizShow.getUSERID(),quizShow.getUSERNAME(),quizShow.getUSERTYPE(),quizShow.getUSERIMAGE(),quizShow.getUSERMOBILE(),quizShow.getUSERALTNUMBER(),quizShow.getUSEREMAIL(),quizShow.getUSERPASSWORD(),quizShow.getUSERACTIVE(),latLng));
+            mClusterManager.addItem(new Datum(quizShow.getPOSTID(),quizShow.getUSERID(),quizShow.getPOSTIMAGEURL(),quizShow.getPOSTDESCRIPTION(),quizShow.getPOSTBLOCK(),quizShow.getPOSTDELETE(),quizShow.getPOSTDATETIME(),quizShow.getUSERID(),quizShow.getUSERNAME(),quizShow.getUSERTYPE(),quizShow.getUSERIMAGE(),quizShow.getUSERMOBILE(),quizShow.getUSERALTNUMBER(),quizShow.getUSEREMAIL(),quizShow.getUSERPASSWORD(),quizShow.getUSERACTIVE(),latLng));
             count++;
         }
-        Random r;
+        /*Random r;
         for (Datum UserData : objUser1) {
             if (userPos.contains(UserData.getPosition())){
                 r = new Random();
@@ -100,15 +100,15 @@ public class backgroundoperation extends AsyncTask<Void, TempObject, String> {
                // mClusterManager.addItem(UserData);
             }else{
 
-           /*     BigDecimal aa = new BigDecimal(a);
+           *//*     BigDecimal aa = new BigDecimal(a);
                 BigDecimal bb = new BigDecimal(b);
                 aa = aa.setScale(4, BigDecimal.ROUND_DOWN);
-                bb = bb.setScale(4, BigDecimal.ROUND_DOWN);*/
+                bb = bb.setScale(4, BigDecimal.ROUND_DOWN);*//*
 
                 userPos.add(UserData.getPosition());
                 mClusterManager.addItem(new Datum(UserData.getPOSTID(),UserData.getUSERID(),UserData.getPOSTIMAGEURL(),UserData.getPOSTDESCRIPTION(),UserData.getPOSTBLOCK(),UserData.getPOSTDELETE(),UserData.getPOSTDATETIME(),UserData.getUSERID(),UserData.getUSERNAME(),UserData.getUSERTYPE(),UserData.getUSERIMAGE(),UserData.getUSERMOBILE(),UserData.getUSERALTNUMBER(),UserData.getUSEREMAIL(),UserData.getUSERPASSWORD(),UserData.getUSERACTIVE(),UserData.getPosition()));
             }
-        }
+        }*/
 
         // final LatLngBounds bounds =
         CameraPosition cameraPosition = new CameraPosition.Builder()
