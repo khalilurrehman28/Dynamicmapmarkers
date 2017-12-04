@@ -22,11 +22,11 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
-        android:layout_marginRight="3dp"
-        android:layout_marginLeft="3dp"
+        android:layout_marginRight="2dp"
+        android:layout_marginLeft="2dp"
         android:padding="2dp"
         android:background="@drawable/commenttextstyle"
-        android:layout_marginBottom="4dp">
+        android:layout_marginBottom="2dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -51,7 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:layout_marginLeft="12dp"
+                android:layout_marginLeft="10dp"
                 emojicon:emojiconSize="24sp"
                 android:paddingTop="6dp"
                 android:maxHeight="150dp"
@@ -60,7 +60,8 @@
                 android:inputType="textMultiLine|textCapSentences"
                 android:textSize="18sp"
                 android:textColorHint="#c4c0bd"
-                android:background="@null"/>
+                android:background="@null"
+                android:scrollbars="vertical"/>
 
         </LinearLayout>
 

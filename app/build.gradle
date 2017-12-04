@@ -1,5 +1,10 @@
 apply plugin: 'com.android.application'
 
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+
 android {
     compileSdkVersion 26
     defaultConfig {
@@ -21,11 +26,13 @@ android {
 repositories {
     maven { url "https://dl.bintray.com/hani-momanii/maven" }
     google()
+    mavenCentral()
 }
 
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
         implementation 'com.jakewharton:butterknife:8.5.1'
@@ -33,11 +40,12 @@ dependencies {
     })
 
     implementation 'com.jakewharton:butterknife:8.5.1'
-    implementation 'com.android.support:design:26.+'
+    //noinspection GradleCompatible
+    implementation 'com.android.support:design:26.1.0'
     implementation 'com.squareup.retrofit2:retrofit:2.1.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
     implementation 'com.google.code.gson:gson:2.7'
-    implementation 'com.android.support:cardview-v7:26.+'
+    implementation 'com.android.support:cardview-v7:26.1.0'
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.google.android.gms:play-services:11.4.2'
@@ -53,4 +61,5 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

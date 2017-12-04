@@ -29,7 +29,11 @@ import com.dupleit.mapmarkers.dynamicmapmarkers.R;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Adapter.commentAdapter;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.CommentData;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.CommentResponse;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import hani.momanii.supernova_emoji_library.Actions.EmojIconActions;
@@ -142,6 +146,10 @@ public class ReadComments extends AppCompatActivity {
     }
 
     private void sendComment(final String getEditTextValue) {
+        Date curDate = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        final String DateToStr = format.format(curDate);
+
         if (!checkInternetState.getInstance(ReadComments.this).isOnline()) {
             Toast.makeText(this, "Please Check Your Internet Connection.", Toast.LENGTH_SHORT).show();
             //new CustomToast().Show_Toast(ctx, view,"Please Check Your Internet Connection." );
@@ -154,7 +162,7 @@ public class ReadComments extends AppCompatActivity {
                     if (response.body().getStatus()) {
                         //Toast.makeText(ReadComments.this, "Comment added successfully", Toast.LENGTH_SHORT).show();
                         CommentData oth = new CommentData();
-                        oth.setCOMMENTDATETIME("2017-11-17 00:00:00");
+                        oth.setCOMMENTDATETIME(DateToStr);
                         oth.setUSERIMAGE(Appconstant.weburl+"upload/image/userimage.jpg");
                         oth.setUSERNAME("Dupleit2");
                         oth.setCOMMENTTEXT(getEditTextValue);

@@ -11,7 +11,13 @@ import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.DateConverter;
 import com.dupleit.mapmarkers.dynamicmapmarkers.R;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.CommentData;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import hani.momanii.supernova_emoji_library.Helper.EmojiconTextView;
 
@@ -55,7 +61,46 @@ public class commentAdapter extends RecyclerView.Adapter<commentAdapter.GalleryV
         holder.commentBy.setText(commentData.getUSERNAME());
         holder.commentText.setText(commentData.getCOMMENTTEXT());
         DateConverter mydate = new DateConverter();
-        holder.commentTime.setText(mydate.convertDate(commentData.getCOMMENTDATETIME()));
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date past = null;
+        try {
+            past = format.parse(commentData.getCOMMENTDATETIME());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Date now = new Date();
+        long seconds=TimeUnit.MILLISECONDS.toSeconds(now.getTime() - past.getTime());
+        long minutes=TimeUnit.MILLISECONDS.toMinutes(now.getTime() - past.getTime());
+        long hours=TimeUnit.MILLISECONDS.toHours(now.getTime() - past.getTime());
+        long days= TimeUnit.MILLISECONDS.toDays(now.getTime() - past.getTime());
+//
+//          System.out.println(TimeUnit.MILLISECONDS.toSeconds(now.getTime() - past.getTime()) + " milliseconds ago");
+//          System.out.println(TimeUnit.MILLISECONDS.toMinutes(now.getTime() - past.getTime()) + " minutes ago");
+//          System.out.println(TimeUnit.MILLISECONDS.toHours(now.getTime() - past.getTime()) + " hours ago");
+//          System.out.println(TimeUnit.MILLISECONDS.toDays(now.getTime() - past.getTime()) + " days ago");
+
+        if(seconds<60)
+        {
+            System.out.println(seconds+" seconds ago");
+            holder.commentTime.setText(seconds+" sec ago");
+        }
+        else if(minutes<60)
+        {
+            System.out.println(minutes+" minutes ago");
+            holder.commentTime.setText(minutes+" min ago");
+
+        }
+        else if(hours<24)
+        {
+            System.out.println(hours+" hours ago");
+            holder.commentTime.setText(hours+" hours ago");
+        }
+        else
+        {
+            System.out.println(days+" days ago");
+            holder.commentTime.setText(days+" days ago");
+        }
+       // holder.commentTime.setText(mydate.convertDate(commentData.getCOMMENTDATETIME()));
         String commenterImage = Appconstant.weburl+commentData.getUSERIMAGE();
         if (commenterImage.equals("")){
             Glide.with(context).load(R.drawable.ic_account_circle_black_36dp).into(holder.commenterImage);
@@ -64,25 +109,7 @@ public class commentAdapter extends RecyclerView.Adapter<commentAdapter.GalleryV
         }
 
     }
-    /*private String getTimeStamp(String messageTime) {
-        Calendar smsTime = Calendar.getInstance();
-        smsTime.setTimeInMillis(Long.parseLong(messageTime));
 
-        Calendar now = Calendar.getInstance();
-
-        final String timeFormatString = "h:mm aa";
-        final String dateTimeFormatString = "d/MM/yy";
-        final long HOURS = 60 * 60 * 60;
-        if (now.get(Calendar.DATE) == smsTime.get(Calendar.DATE) ) {
-            return "" + DateFormat.format(timeFormatString, smsTime);
-        } else if (now.get(Calendar.DATE) - smsTime.get(Calendar.DATE) == 1 ){
-            return "YESTERDAY";
-        } else if (now.get(Calendar.YEAR) == smsTime.get(Calendar.YEAR)) {
-            return DateFormat.format(dateTimeFormatString, smsTime).toString();
-        } else {
-            return DateFormat.format(dateTimeFormatString, smsTime).toString();
-        }
-    }*/
 
     @Override
     public int getItemCount() {

@@ -41,10 +41,14 @@ public class ReadPostActivity extends AppCompatActivity {
     @BindView(R.id.Likes) TextView Likes;
     @BindView(R.id.comments) TextView comments;
     @BindView(R.id.ListerImage) CircleImageView ListerImage;
-    @BindView(R.id.layoutFavorite) LinearLayout layoutFavorite;
+    @BindView(R.id.layoutLike) LinearLayout layoutLike;
 
     @OnClick(R.id.layoutComment)
     public void showComments(){
+        startActivity(new Intent(this, ReadComments.class));
+    }
+    @OnClick(R.id.layoutLike)
+    public void likePost(){
         startActivity(new Intent(this, ReadComments.class));
     }
 
