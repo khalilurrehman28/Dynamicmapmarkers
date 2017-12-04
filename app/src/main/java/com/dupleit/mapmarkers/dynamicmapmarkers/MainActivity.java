@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements
         ClusterManager.OnClusterItemClickListener<Datum>,
         ClusterManager.OnClusterItemInfoWindowClickListener<Datum> {
 
-    static final float COORDINATE_OFFSET = 0.002f;
+    //static final float COORDINATE_OFFSET = 0.002f;
     private ClusterManager<Datum> mClusterManager;
     private GoogleMap mMap;
     @Override
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements
             return;
         }
         mMap = googleMap;
-       /* try {
+        try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
             boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.mapstyle));
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         } catch (Resources.NotFoundException e) {
             Log.e("Map", "Can't find style. Error: ", e);
-        }*/
+        }
 
         startDemo();
         new backgroundoperation(mClusterManager,getMap()).execute();
@@ -185,45 +185,10 @@ public class MainActivity extends AppCompatActivity implements
             }
             MultiDrawable multiDrawable = new MultiDrawable(profilePhotos);
             multiDrawable.setBounds(0, 0, width, height);
-            //mClusterImageView.setColorFilter(getColor(cluster.getSize()));
             mClusterImageView.setImageDrawable(multiDrawable);
-            //mClusterIconGenerator.setColor(getColor(cluster.getSize()));
             Bitmap icon = mClusterIconGenerator.makeIcon(String.valueOf(cluster.getSize()));
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
         }
-
-       /* protected int getColor(int clusterSize) {
-            // I use Cyan color palette: https://material.io/guidelines/style/color.html#color-color-palette
-            // refer to variable BUCKETS for available cluster size
-            String color = "#80DEEA";
-            switch(clusterSize) {
-                case 10:
-                    color = "#4DD0E1";
-                    break;
-                case 20:
-                    color = "#26C6DA";
-                    break;
-                case 50:
-                    color = "#00BCD4";
-                    break;
-                case 100:
-                    color = "#00ACC1";
-                    break;
-                case 200:
-                    color = "#0097A7";
-                    break;
-                case 500:
-                    color = "#00838F";
-                    break;
-                case 1000:
-                    color = "#006064";
-                    break;
-                default:
-                    color = "#ffffff";
-                    break;
-            }
-            return Color.parseColor(color);
-        }*/
 
         @Override
         protected boolean shouldRenderAsCluster(Cluster cluster) {
@@ -307,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements
         mClusterManager.clearItems();
         //mClusterManager.setAlgorithm(new GridBasedAlgorithm<Datum>());
         //mClusterManager.setAlgorithm(new PreCachingAlgorithmDecorator<Datum>(new GridBasedAlgorithm<Datum>()));
-        //getMap().setOnCameraIdleListener(mClusterManager);
+        getMap().setOnCameraIdleListener(mClusterManager);
 
     }
 
