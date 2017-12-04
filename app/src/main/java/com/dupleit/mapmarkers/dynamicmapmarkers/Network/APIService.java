@@ -1,8 +1,6 @@
 package com.dupleit.mapmarkers.dynamicmapmarkers.Network;
 
-import com.dupleit.demo.mapproject.Login.model.LoginModel;
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.Model.UploadImageResponse;
-import com.dupleit.mapmarkers.dynamicmapmarkers.SignUp.Model.SignupModel;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.CommentResponse;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.model.UserPost;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.UsersMapsMarkers;
@@ -39,13 +37,5 @@ public interface APIService {
     @FormUrlEncoded
     @POST("addcommenttopost_request")
     Call<CommentResponse> addcommenttopost_request(@Field("POST_ID") int postID,@Field("USER_ID") int USER_ID,@Field("COMMENT") String Comment);
-
-    @FormUrlEncoded
-    @POST("userlogin_request")
-    Call<LoginModel> loginRequest(@Field("useremail") String useremail,@Field("password") String password);
-
-    @FormUrlEncoded
-    @POST("checkUserSignup_request")
-    Call<SignupModel> signUpRequest(@Field("USER_EMAIL") String useremail, @Field("USER_PASSWORD") String password, @Field("USER_NAME") String USER_NAME, @Field("USER_MOBILE") String USER_MOBILE);
 
 }

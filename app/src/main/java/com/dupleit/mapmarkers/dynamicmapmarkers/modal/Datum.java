@@ -1,19 +1,20 @@
 
 package com.dupleit.mapmarkers.dynamicmapmarkers.modal;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.maps.android.clustering.ClusterItem;
 
-public class Datum implements ClusterItem {
+public class Datum implements ClusterItem, Parcelable {
 
     @SerializedName("POST_ID")
     @Expose
     private String pOSTID;
-
     @SerializedName("USER_ID_FK")
-
     @Expose
     private String uSERIDFK;
     @SerializedName("POST_IMAGE_URL")
@@ -251,6 +252,70 @@ public class Datum implements ClusterItem {
 
     @Override
     public String getSnippet() {
-        return null;
+        return pOSTDESCRIPTION;
     }
+
+
+    protected Datum(Parcel in) {
+        pOSTID = in.readString();
+        uSERIDFK = in.readString();
+        pOSTIMAGEURL = in.readString();
+        pOSTDESCRIPTION = in.readString();
+        pOSTLATITUDE = in.readString();
+        pOSTLONGITUDE = in.readString();
+        pOSTBLOCK = in.readString();
+        pOSTDELETE = in.readString();
+        pOSTDATETIME = in.readString();
+        uSERID = in.readString();
+        uSERNAME = in.readString();
+        uSERTYPE = in.readString();
+        uSERIMAGE = in.readString();
+        uSERMOBILE = in.readString();
+        uSERALTNUMBER = in.readString();
+        uSEREMAIL = in.readString();
+        uSERPASSWORD = in.readString();
+        uSERACTIVE = in.readString();
+        userPostLatLang = (LatLng) in.readValue(LatLng.class.getClassLoader());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(pOSTID);
+        dest.writeString(uSERIDFK);
+        dest.writeString(pOSTIMAGEURL);
+        dest.writeString(pOSTDESCRIPTION);
+        dest.writeString(pOSTLATITUDE);
+        dest.writeString(pOSTLONGITUDE);
+        dest.writeString(pOSTBLOCK);
+        dest.writeString(pOSTDELETE);
+        dest.writeString(pOSTDATETIME);
+        dest.writeString(uSERID);
+        dest.writeString(uSERNAME);
+        dest.writeString(uSERTYPE);
+        dest.writeString(uSERIMAGE);
+        dest.writeString(uSERMOBILE);
+        dest.writeString(uSERALTNUMBER);
+        dest.writeString(uSEREMAIL);
+        dest.writeString(uSERPASSWORD);
+        dest.writeString(uSERACTIVE);
+        dest.writeValue(userPostLatLang);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Datum> CREATOR = new Parcelable.Creator<Datum>() {
+        @Override
+        public Datum createFromParcel(Parcel in) {
+            return new Datum(in);
+        }
+
+        @Override
+        public Datum[] newArray(int size) {
+            return new Datum[size];
+        }
+    };
 }
