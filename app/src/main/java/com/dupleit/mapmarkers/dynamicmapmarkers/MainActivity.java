@@ -22,7 +22,9 @@ import android.widget.Toast;
 
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.UI.PostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.PreferenceManager;
 import com.dupleit.mapmarkers.dynamicmapmarkers.GridUIPost.gridUiActivity;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Login.LoginActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.ReadPostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.backgroundOperations.backgroundoperation;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.Datum;
@@ -39,6 +41,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.algo.GridBasedAlgorithm;
+import com.google.maps.android.clustering.algo.PreCachingAlgorithmDecorator;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
 
@@ -63,6 +67,11 @@ public class MainActivity extends AppCompatActivity implements
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
+
+        if ((new PreferenceManager(this).getUserID()).isEmpty()){
+            startActivity(new Intent(this,LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        }
+
         setUpMap();
     }
     @Override
@@ -167,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements
         protected void onBeforeClusterRendered(Cluster<Datum> cluster, MarkerOptions markerOptions) {
             // Draw multiple people.
             // Note: this method runs on the UI thread. Don't spend too much time in here (like in this example).
-            List<Drawable> profilePhotos = new ArrayList<Drawable>(Math.min(1, cluster.getSize()));
+            List<Drawable> profilePhotos = new ArrayList<>(Math.min(1, cluster.getSize()));
             int width = mDimension;
             int height = mDimension;
 
@@ -220,8 +229,9 @@ public class MainActivity extends AppCompatActivity implements
                 builder.include(item.getPosition());
             }
             // Get the LatLngBounds
-            final LatLngBounds bounds = builder.build();
+            LatLngBounds bounds = builder.build();
             // Animate camera to the bounds
+            //bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
             try {
                 getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 7));
                 //getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
@@ -271,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements
         mClusterManager.setOnClusterItemInfoWindowClickListener(this);
         mClusterManager.clearItems();
         //mClusterManager.setAlgorithm(new GridBasedAlgorithm<Datum>());
-        //mClusterManager.setAlgorithm(new PreCachingAlgorithmDecorator<Datum>(new GridBasedAlgorithm<Datum>()));
+        mClusterManager.setAlgorithm(new PreCachingAlgorithmDecorator<Datum>(new GridBasedAlgorithm<Datum>()));
         getMap().setOnCameraIdleListener(mClusterManager);
 
     }
