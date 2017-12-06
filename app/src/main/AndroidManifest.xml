@@ -20,16 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity
-            android:name=".Login.LoginActivity"
-            android:theme="@style/AppThemeNoActionBar"
-            android:windowSoftInputMode="adjustResize|stateHidden">
 
-        </activity>
-        <activity
-            android:name=".SignUp.SignUpActivity"
-            android:theme="@style/AppThemeNoActionBar"
-            android:windowSoftInputMode="adjustResize|stateHidden"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -52,9 +43,12 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".GridUIPost.gridUiActivity" />
-        <activity android:name=".Login.LoginActivity" />
-        <activity android:name=".Signup.Signup" >
-        </activity>
+        <activity android:name=".Login.LoginActivity"
+            android:theme="@style/AppThemeNoActionBar"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".Signup.Signup"
+            android:theme="@style/AppThemeNoActionBar"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
     </application>
 
 </manifest>
