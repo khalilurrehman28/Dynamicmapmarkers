@@ -1,13 +1,19 @@
 package com.dupleit.mapmarkers.dynamicmapmarkers;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Parcelable;
 import android.os.StrictMode;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -28,6 +35,8 @@ import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.ReadPostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.backgroundOperations.backgroundoperation;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.Datum;
 import com.dupleit.mapmarkers.dynamicmapmarkers.multiPIcs.MultiDrawable;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -48,6 +57,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -59,8 +69,15 @@ public class MainActivity extends AppCompatActivity implements
         ClusterManager.OnClusterItemInfoWindowClickListener<Datum> {
 
     //static final float COORDINATE_OFFSET = 0.002f;
+    private static final int REQUEST= 112;
+    private final static int MY_PERMISSION_FINE_LOCATION = 101;
     private ClusterManager<Datum> mClusterManager;
     private GoogleMap mMap;
+    @BindView(R.id.fab_menu) FloatingActionMenu fam;
+    @BindView(R.id.fab1) FloatingActionButton fabCamera;
+    @BindView(R.id.fab2) FloatingActionButton fabGallery;
+    String checktype=null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +92,125 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         setUpMap();
+        forFab();
+    }
+
+    private void forFab() {
+        //handling menu status (open or close)
+        fam.setOnMenuToggleListener(new FloatingActionMenu.OnMenuToggleListener() {
+            @Override
+            public void onMenuToggle(boolean opened) {
+                if (opened) {
+                    //showToast("Menu is opened");
+                } else {
+                    //showToast("Menu is closed");
+                }
+            }
+        });
+
+        //handling each floating action button clicked
+        fabCamera.setOnClickListener(onButtonClick());
+        fabGallery.setOnClickListener(onButtonClick());
+
+        fam.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (fam.isOpened()) {
+                    fam.close(true);
+                }
+            }
+        });
+    }
+    private View.OnClickListener onButtonClick() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view == fabCamera) {
+                    checkPermissionUser("camera");
+                    checktype = "camera";
+                    //showToast("Button Add clicked");
+                } else if (view == fabGallery){
+                    checkPermissionUser("gallery");
+                    checktype = "gallery";
+                }
+                fam.close(true);
+            }
+        };
+    }
+
+    private void checkPermissionUser(String typeImage) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            Log.d("TAG","@@@ IN IF Build.VERSION.SDK_INT >= 23");
+            String[] PERMISSIONS = {
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            };
+            if (!hasPermissions(this, PERMISSIONS)) {
+                Log.d("TAG","@@@ IN IF hasPermissions");
+                ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST );
+            } else {
+                Log.d("TAG","@@@ IN ELSE hasPermissions");
+                if (typeImage.equals("camera")){
+                    openCamera();
+                }else{
+                    selectFromGallery();
+                }
+            }
+        } else {
+            Log.d("TAG","@@@ IN ELSE  Build.VERSION.SDK_INT >= 23");
+            if (typeImage.equals("camera")){
+                openCamera();
+            }else{
+                selectFromGallery();
+            }
+        }
+    }
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d("TAG","@@@ PERMISSIONS grant");
+                    if (checktype.equals("camera")){
+                        openCamera();
+                    }else{
+                        selectFromGallery();
+                    }
+                } else {
+                    Log.d("TAG","@@@ PERMISSIONS Denied");
+                    Toast.makeText(this, "PERMISSIONS Denied", Toast.LENGTH_LONG).show();
+                }
+            }
+            break;
+
+        }
+    }
+    private void openCamera() {
+        showToast("camera");
+        /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(intent, REQUEST_CAMERA);*/
+    }
+
+    private void selectFromGallery() {
+        showToast("Gallery");
+    }
+    private static boolean hasPermissions(Context context, String... permissions) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void showToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
     /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -291,8 +427,8 @@ public class MainActivity extends AppCompatActivity implements
         return BitmapFactory.decodeStream(url.openConnection().getInputStream());
     }
 
-    @OnClick(R.id.uploadPost)
+   /* @OnClick(R.id.uploadPost)
     public void fabView(){
         startActivity(new Intent(this,PostActivity.class));
-    }
+    }*/
 }

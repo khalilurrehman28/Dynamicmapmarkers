@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    >
+    xmlns:fab="http://schemas.android.com/apk/res-auto">
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -12,16 +12,54 @@
         android:layout_height="match_parent"
         tools:context="com.dupleit.mapmarkers.dynamicmapmarkers.MainActivity" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/uploadPost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/fab_menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="27dp"
-        android:layout_marginEnd="27dp"
-        android:clickable="true"
-        app:srcCompat="@drawable/cast_ic_mini_controller_play_large" />
+        android:layout_alignParentRight="true"
+        android:paddingBottom="16dp"
+        android:paddingRight="16dp"
+        fab:menu_backgroundColor="#ccffffff"
+        fab:menu_fab_label="Upload post"
+        app:fab_colorNormal="@color/colorPrimary"
+        app:fab_colorPressed="@color/colorPrimaryDark"
+        fab:fab_colorRipple="#99FFFFFF"
+        fab:fab_showShadow="true"
+        fab:menu_labels_colorNormal="#cccccc"
+        fab:menu_labels_colorPressed="#6c6c6c"
+        fab:menu_labels_colorRipple="#66FFFFFF"
+        fab:menu_labels_showShadow="true"
+        fab:menu_labels_maxLines="-1"
+        fab:menu_labels_position="left"
+        fab:menu_openDirection="up"
+        fab:fab_shadowColor="#66565656"
+        fab:menu_labels_ellipsize="end"
+        fab:menu_labels_singleLine="true">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_photo_camera"
+            fab:fab_label="Camera"
+            app:fab_colorNormal="#2196F3"
+            app:fab_colorPressed="#1584dc"
+            fab:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_gallery"
+            fab:fab_label="Gallery"
+            app:fab_colorNormal="#E040FB"
+            app:fab_colorPressed="#c63ade"
+            fab:fab_size="mini" />
+
+
+
+    </com.github.clans.fab.FloatingActionMenu>
 
 
 </RelativeLayout>
