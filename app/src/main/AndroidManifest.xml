@@ -21,11 +21,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -36,7 +35,6 @@
         <activity android:name=".ReadPost.ReadPostActivity" />
         <activity android:name=".ReadComments.UI.ReadComments" />
 
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -45,12 +43,16 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".GridUIPost.gridUiActivity" />
-        <activity android:name=".Login.LoginActivity"
+        <activity
+            android:name=".Login.LoginActivity"
             android:theme="@style/AppThemeNoActionBar"
             android:windowSoftInputMode="adjustResize|stateHidden" />
-        <activity android:name=".Signup.Signup"
+        <activity
+            android:name=".Signup.Signup"
             android:theme="@style/AppThemeNoActionBar"
-            android:windowSoftInputMode="adjustResize|stateHidden"/>
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity android:name=".Profile.ProfileActivity" />
+        <activity android:name=".Profile.ProfileActivity"></activity>
     </application>
 
 </manifest>
