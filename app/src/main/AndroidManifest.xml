@@ -33,7 +33,6 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -52,7 +51,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".GridUIPost.gridUiActivity"></activity>
+        <activity android:name=".GridUIPost.gridUiActivity" />
+        <activity android:name=".Login.LoginActivity" />
+        <activity android:name=".Signup.Signup" >
+        </activity>
     </application>
 
 </manifest>

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
@@ -21,7 +22,9 @@ import android.widget.Toast;
 
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.UI.PostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.PreferenceManager;
 import com.dupleit.mapmarkers.dynamicmapmarkers.GridUIPost.gridUiActivity;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Login.LoginActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.ReadPostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.backgroundOperations.backgroundoperation;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.Datum;
@@ -38,6 +41,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.algo.GridBasedAlgorithm;
+import com.google.maps.android.clustering.algo.PreCachingAlgorithmDecorator;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
 
@@ -53,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements
         ClusterManager.OnClusterItemClickListener<Datum>,
         ClusterManager.OnClusterItemInfoWindowClickListener<Datum> {
 
-    static final float COORDINATE_OFFSET = 0.002f;
+    //static final float COORDINATE_OFFSET = 0.002f;
     private ClusterManager<Datum> mClusterManager;
     private GoogleMap mMap;
     @Override
@@ -62,6 +67,11 @@ public class MainActivity extends AppCompatActivity implements
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
+
+        if ((new PreferenceManager(this).getUserID()).isEmpty()){
+            startActivity(new Intent(this,LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        }
+
         setUpMap();
     }
     @Override
@@ -110,9 +120,7 @@ public class MainActivity extends AppCompatActivity implements
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
-            boolean success = googleMap.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                            this, R.raw.mapstyle));
+            boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.mapstyle));
 
             if (!success) {
                 Log.e("Map", "Style parsing failed.");
@@ -138,11 +146,9 @@ public class MainActivity extends AppCompatActivity implements
 
         public PersonRenderer() {
             super(getApplicationContext(), getMap(), mClusterManager);
-
             View multiProfile = getLayoutInflater().inflate(R.layout.multi_profile, null);
             mClusterIconGenerator.setContentView(multiProfile);
             mClusterImageView = (ImageView) multiProfile.findViewById(R.id.image);
-
             mImageView = new ImageView(getApplicationContext());
             mDimension = (int) getResources().getDimension(R.dimen.custom_profile_image);
             mImageView.setLayoutParams(new ViewGroup.LayoutParams(mDimension, mDimension));
@@ -170,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements
         protected void onBeforeClusterRendered(Cluster<Datum> cluster, MarkerOptions markerOptions) {
             // Draw multiple people.
             // Note: this method runs on the UI thread. Don't spend too much time in here (like in this example).
-            List<Drawable> profilePhotos = new ArrayList<Drawable>(Math.min(1, cluster.getSize()));
+            List<Drawable> profilePhotos = new ArrayList<>(Math.min(1, cluster.getSize()));
             int width = mDimension;
             int height = mDimension;
 
@@ -188,7 +194,6 @@ public class MainActivity extends AppCompatActivity implements
             }
             MultiDrawable multiDrawable = new MultiDrawable(profilePhotos);
             multiDrawable.setBounds(0, 0, width, height);
-
             mClusterImageView.setImageDrawable(multiDrawable);
             Bitmap icon = mClusterIconGenerator.makeIcon(String.valueOf(cluster.getSize()));
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
@@ -201,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
     @Override
     public boolean onClusterClick(Cluster<Datum> cluster) {
         // Zoom in the cluster. Need to create LatLngBounds and including all the cluster items
@@ -209,12 +213,11 @@ public class MainActivity extends AppCompatActivity implements
         // Create the builder to collect all essential cluster items for the bounds.
         Log.d("Zoom",""+mMap.getCameraPosition().zoom);
         List<LatLng> userLatLang = new ArrayList<>();
-        if (mMap.getCameraPosition().zoom >=19.0 && mMap.getCameraPosition().zoom<=21.0){
+        if (mMap.getCameraPosition().zoom >=15.0 && mMap.getCameraPosition().zoom<=21.0){
             for (ClusterItem item : cluster.getItems()) {
                 Log.d("User",""+item.getTitle());
                 userLatLang.add(item.getPosition());
             }
-
             gotonextPage(userLatLang);
 
         }else{
@@ -226,24 +229,20 @@ public class MainActivity extends AppCompatActivity implements
                 builder.include(item.getPosition());
             }
             // Get the LatLngBounds
-            final LatLngBounds bounds = builder.build();
+            LatLngBounds bounds = builder.build();
             // Animate camera to the bounds
+            //bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
             try {
                 getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 7));
+                //getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
-
         return true;
     }
 
     private void gotonextPage(List<LatLng> userLatLang) {
-        /*
-        for (LatLng userMarkers: userLatLang) {
-            Log.d("Userlatlang",""+userMarkers);
-        }*/
         Intent i = new Intent(MainActivity.this, gridUiActivity.class);
         i.putParcelableArrayListExtra("userlatlang", (ArrayList<? extends Parcelable>) userLatLang);
         startActivity(i);
@@ -252,7 +251,6 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onClusterInfoWindowClick(Cluster<Datum> cluster) {
         // Does nothing, but you could go to a list of the users.
-
         //LatLngBounds.Builder builder = LatLngBounds.builder();
 
     }
@@ -282,7 +280,10 @@ public class MainActivity extends AppCompatActivity implements
         mClusterManager.setOnClusterItemClickListener(this);
         mClusterManager.setOnClusterItemInfoWindowClickListener(this);
         mClusterManager.clearItems();
+        //mClusterManager.setAlgorithm(new GridBasedAlgorithm<Datum>());
+        mClusterManager.setAlgorithm(new PreCachingAlgorithmDecorator<Datum>(new GridBasedAlgorithm<Datum>()));
         getMap().setOnCameraIdleListener(mClusterManager);
+
     }
 
     private Bitmap convertUrlToDrawable(String urlResource) throws IOException {

@@ -1,9 +1,13 @@
 package com.dupleit.mapmarkers.dynamicmapmarkers.Network;
 
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.Model.UploadImageResponse;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Login.modal.UserLogin;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.CommentResponse;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.model.UserPost;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.UsersMapsMarkers;
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.List;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -37,5 +41,17 @@ public interface APIService {
     @FormUrlEncoded
     @POST("addcommenttopost_request")
     Call<CommentResponse> addcommenttopost_request(@Field("POST_ID") int postID,@Field("USER_ID") int USER_ID,@Field("COMMENT") String Comment);
+
+    @FormUrlEncoded
+    @POST("getpostonlatlang_request")
+    Call<UsersMapsMarkers> getpostonlatlang_request(@Field("Userlatlang[]") List<LatLng> markerList);
+
+    @FormUrlEncoded
+    @POST("checkUserLogin_request")
+    Call<UserLogin> checkUserLogin_request(@Field("email") String email,@Field("password") String password);
+
+    @FormUrlEncoded
+    @POST("registeruser_request")
+    Call<UserLogin> registeruser_request(@Field("email") String email,@Field("password") String password,@Field("username") String username,@Field("mobile") String mobile);
 
 }
