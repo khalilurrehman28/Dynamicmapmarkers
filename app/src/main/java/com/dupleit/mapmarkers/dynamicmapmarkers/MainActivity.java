@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Parcelable;
@@ -41,8 +40,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
-import com.google.maps.android.clustering.algo.GridBasedAlgorithm;
-import com.google.maps.android.clustering.algo.PreCachingAlgorithmDecorator;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
 
@@ -50,6 +47,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback,
@@ -67,32 +67,33 @@ public class MainActivity extends AppCompatActivity implements
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-        if ((new PreferenceManager(this).getUserID()).isEmpty()){
+        if ((new PreferenceManager(this).getUserID()).equals("")){
             startActivity(new Intent(this,LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            finish(); //to end current activity
         }
 
         setUpMap();
     }
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflate = getMenuInflater();
         inflate.inflate  (R.menu.menu_home, menu);
         return super.onCreateOptionsMenu(menu);
-    }
+    }*/
 
-    @Override
+   /* @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.uploadPost:
                 Intent intent= new Intent(this,PostActivity.class);
-               // intent.putExtra("studentId",getStudentID());
                 startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
+    }*/
     private void setUpMap() {
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
     }
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements
             return;
         }
         mMap = googleMap;
-        try {
+        /*try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
             boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.mapstyle));
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         } catch (Resources.NotFoundException e) {
             Log.e("Map", "Can't find style. Error: ", e);
-        }
+        }*/
 
         startDemo();
         new backgroundoperation(mClusterManager,getMap()).execute();
@@ -211,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements
         // Zoom in the cluster. Need to create LatLngBounds and including all the cluster items
         // inside of bounds, then animate to center of the bounds.
         // Create the builder to collect all essential cluster items for the bounds.
-        Log.d("Zoom",""+mMap.getCameraPosition().zoom);
+        //Log.d("Zoom",""+mMap.getCameraPosition().zoom);
         List<LatLng> userLatLang = new ArrayList<>();
         if (mMap.getCameraPosition().zoom >=15.0 && mMap.getCameraPosition().zoom<=21.0){
             for (ClusterItem item : cluster.getItems()) {
@@ -280,8 +281,7 @@ public class MainActivity extends AppCompatActivity implements
         mClusterManager.setOnClusterItemClickListener(this);
         mClusterManager.setOnClusterItemInfoWindowClickListener(this);
         mClusterManager.clearItems();
-        //mClusterManager.setAlgorithm(new GridBasedAlgorithm<Datum>());
-        mClusterManager.setAlgorithm(new PreCachingAlgorithmDecorator<Datum>(new GridBasedAlgorithm<Datum>()));
+        mClusterManager.cluster();
         getMap().setOnCameraIdleListener(mClusterManager);
 
     }
@@ -289,5 +289,10 @@ public class MainActivity extends AppCompatActivity implements
     private Bitmap convertUrlToDrawable(String urlResource) throws IOException {
         URL url = new URL(Appconstant.weburl+urlResource);
         return BitmapFactory.decodeStream(url.openConnection().getInputStream());
+    }
+
+    @OnClick(R.id.uploadPost)
+    public void fabView(){
+        startActivity(new Intent(this,PostActivity.class));
     }
 }

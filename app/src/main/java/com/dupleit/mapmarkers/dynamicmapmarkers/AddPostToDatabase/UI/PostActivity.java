@@ -26,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.Model.UploadImageResponse;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.PreferenceManager;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.ProgressRequestBody;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.checkInternetState;
 import com.dupleit.mapmarkers.dynamicmapmarkers.MainActivity;
@@ -125,7 +126,7 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
             Toast.makeText(PostActivity.this, "Please check your internet connection.", Toast.LENGTH_SHORT).show();
         }else {
             APIService service = ApiClient.getClient().create(APIService.class);
-            Call<UploadImageResponse> call = service.upload_post_request(fileToUpload,1,postDescription,latitude,longitude);
+            Call<UploadImageResponse> call = service.upload_post_request(fileToUpload,Integer.parseInt((new PreferenceManager(PostActivity.this).getUserID())),postDescription,latitude,longitude);
             call.enqueue(new Callback<UploadImageResponse>() {
                 @Override
                 public void onResponse(Call<UploadImageResponse> call, Response<UploadImageResponse> response) {

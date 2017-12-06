@@ -59,7 +59,7 @@ public class Signup extends AppCompatActivity {
         ctx = this;
 
     }
-    @OnClick(R.id.skiptomain)
+    @OnClick(R.id.alreadyMember)
     public void skip(){
         startActivity(new Intent(this,LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
     }
