@@ -1,13 +1,17 @@
 package com.dupleit.mapmarkers.dynamicmapmarkers;
 
+import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Parcelable;
 import android.os.StrictMode;
@@ -20,9 +24,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -46,6 +52,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.vision.Frame;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
@@ -61,6 +68,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
+
 public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         ClusterManager.OnClusterClickListener<Datum>,
@@ -70,7 +79,10 @@ public class MainActivity extends AppCompatActivity implements
 
     //static final float COORDINATE_OFFSET = 0.002f;
     private static final int REQUEST= 112;
-    private final static int MY_PERMISSION_FINE_LOCATION = 101;
+    Uri fileUri;
+    String picturePath;
+    Uri selectedImage;
+    Bitmap photo;
     private ClusterManager<Datum> mClusterManager;
     private GoogleMap mMap;
     @BindView(R.id.fab_menu) FloatingActionMenu fam;
@@ -85,6 +97,9 @@ public class MainActivity extends AppCompatActivity implements
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+
+
 
         if ((new PreferenceManager(this).getUserID()).equals("")){
             startActivity(new Intent(this,LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
@@ -190,14 +205,58 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
     private void openCamera() {
-        showToast("camera");
-        /*Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(intent, REQUEST_CAMERA);*/
+        if (getApplicationContext().getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_CAMERA)) {
+            // Open default camera
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+
+            // start the image capture Intent
+            startActivityForResult(intent, 100);
+
+        } else {
+            Toast.makeText(getApplication(), "Camera not supported", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void selectFromGallery() {
         showToast("Gallery");
     }
+    @Override
+   /* protected  void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == Activity.RESULT_OK&& data != null && data.getData() != null) {
+
+            Uri uri = data.getData();
+
+            if (!uri.equals("")){
+                Toast.makeText(this, "true "+uri, Toast.LENGTH_SHORT).show();
+                Intent i = new Intent(MainActivity.this, PostActivity.class);
+                i.putExtra("Uri",uri);
+                startActivity(i);
+            }else {
+                showToast("Something went wrong");
+            }
+
+
+        }else {
+            showToast("false");
+        }
+    }*/
+   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        selectedImage = null;
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+
+            selectedImage = data.getData();
+
+            showToast("Uri "+selectedImage);
+
+
+        }else {
+            showToast("false");
+        }
+    }
+
     private static boolean hasPermissions(Context context, String... permissions) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
             for (String permission : permissions) {

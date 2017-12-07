@@ -5,13 +5,17 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     xmlns:fab="http://schemas.android.com/apk/res-auto">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/frame">
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.dupleit.mapmarkers.dynamicmapmarkers.MainActivity" />
-
+    </FrameLayout>
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/fab_menu"
         android:layout_width="match_parent"
@@ -26,14 +30,16 @@
         app:fab_colorPressed="@color/colorPrimaryDark"
         fab:fab_colorRipple="#99FFFFFF"
         fab:fab_showShadow="true"
-        fab:menu_labels_colorNormal="#cccccc"
-        fab:menu_labels_colorPressed="#6c6c6c"
+        fab:menu_labels_colorNormal="#ececec"
+        fab:menu_labels_colorPressed="#b6b6b6"
         fab:menu_labels_colorRipple="#66FFFFFF"
         fab:menu_labels_showShadow="true"
         fab:menu_labels_maxLines="-1"
+        fab:menu_labels_textColor="#383838"
+        fab:menu_labels_textSize="14sp"
         fab:menu_labels_position="left"
         fab:menu_openDirection="up"
-        fab:fab_shadowColor="#66565656"
+        fab:fab_shadowColor="#666e6e6e"
         fab:menu_labels_ellipsize="end"
         fab:menu_labels_singleLine="true">
 
