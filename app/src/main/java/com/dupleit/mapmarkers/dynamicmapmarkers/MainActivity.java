@@ -1,12 +1,8 @@
 package com.dupleit.mapmarkers.dynamicmapmarkers;
 
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -17,22 +13,17 @@ import android.os.Parcelable;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.FrameLayout;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.Toast;
-
-import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.UI.PostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.PreferenceManager;
 import com.dupleit.mapmarkers.dynamicmapmarkers.GridUIPost.gridUiActivity;
@@ -41,8 +32,6 @@ import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.ReadPostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.backgroundOperations.backgroundoperation;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.Datum;
 import com.dupleit.mapmarkers.dynamicmapmarkers.multiPIcs.MultiDrawable;
-import com.github.clans.fab.FloatingActionButton;
-import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -50,9 +39,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.vision.Frame;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
@@ -65,17 +52,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-
-import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
 public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         ClusterManager.OnClusterClickListener<Datum>,
         ClusterManager.OnClusterInfoWindowClickListener<Datum>,
         ClusterManager.OnClusterItemClickListener<Datum>,
-        ClusterManager.OnClusterItemInfoWindowClickListener<Datum> {
+        ClusterManager.OnClusterItemInfoWindowClickListener<Datum>,View.OnClickListener {
 
     //static final float COORDINATE_OFFSET = 0.002f;
     private static final int REQUEST= 112;
@@ -85,9 +68,9 @@ public class MainActivity extends AppCompatActivity implements
     Bitmap photo;
     private ClusterManager<Datum> mClusterManager;
     private GoogleMap mMap;
-    @BindView(R.id.fab_menu) FloatingActionMenu fam;
-    @BindView(R.id.fab1) FloatingActionButton fabCamera;
-    @BindView(R.id.fab2) FloatingActionButton fabGallery;
+    private Boolean isFabOpen = false;
+   private FloatingActionButton fab_main,fab_gallery,fab_camera;
+    private Animation fab_open,fab_close,rotate_forward,rotate_backward;
     String checktype=null;
 
     @Override
@@ -96,9 +79,6 @@ public class MainActivity extends AppCompatActivity implements
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-
-
 
 
         if ((new PreferenceManager(this).getUserID()).equals("")){
@@ -107,50 +87,63 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         setUpMap();
-        forFab();
+        fab_main = (FloatingActionButton)findViewById(R.id.fab_main);
+        fab_gallery = (FloatingActionButton)findViewById(R.id.fab_gallery);
+        fab_camera = (FloatingActionButton)findViewById(R.id.fab_camera);
+        fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+        fab_close = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fab_close);
+        rotate_forward = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.rotate_forward);
+        rotate_backward = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.rotate_backward);
+
+        fab_main.setOnClickListener(this);
+        fab_gallery.setOnClickListener(this);
+        fab_camera.setOnClickListener(this);
+
+    }
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id){
+            case R.id.fab_main:
+
+                animateFAB();
+                break;
+            case R.id.fab_gallery:
+                checkPermissionUser("gallery");
+                checktype = "gallery";
+                break;
+            case R.id.fab_camera:
+                checkPermissionUser("camera");
+                checktype = "camera";
+
+                Log.d("Raj", "Fab 2");
+                break;
+        }
     }
 
-    private void forFab() {
-        //handling menu status (open or close)
-        fam.setOnMenuToggleListener(new FloatingActionMenu.OnMenuToggleListener() {
-            @Override
-            public void onMenuToggle(boolean opened) {
-                if (opened) {
-                    //showToast("Menu is opened");
-                } else {
-                    //showToast("Menu is closed");
-                }
-            }
-        });
+    public void animateFAB(){
 
-        //handling each floating action button clicked
-        fabCamera.setOnClickListener(onButtonClick());
-        fabGallery.setOnClickListener(onButtonClick());
+        if(isFabOpen){
 
-        fam.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (fam.isOpened()) {
-                    fam.close(true);
-                }
-            }
-        });
-    }
-    private View.OnClickListener onButtonClick() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (view == fabCamera) {
-                    checkPermissionUser("camera");
-                    checktype = "camera";
-                    //showToast("Button Add clicked");
-                } else if (view == fabGallery){
-                    checkPermissionUser("gallery");
-                    checktype = "gallery";
-                }
-                fam.close(true);
-            }
-        };
+            fab_main.startAnimation(rotate_backward);
+            fab_gallery.startAnimation(fab_close);
+            fab_camera.startAnimation(fab_close);
+            fab_gallery.setClickable(false);
+            fab_camera.setClickable(false);
+            isFabOpen = false;
+            Log.d("Raj", "close");
+
+        } else {
+
+            fab_main.startAnimation(rotate_forward);
+            fab_gallery.startAnimation(fab_open);
+            fab_camera.startAnimation(fab_open);
+            fab_gallery.setClickable(true);
+            fab_camera.setClickable(true);
+            isFabOpen = true;
+            Log.d("Raj","open");
+
+        }
     }
 
     private void checkPermissionUser(String typeImage) {
@@ -180,8 +173,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
     }
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -328,6 +319,8 @@ public class MainActivity extends AppCompatActivity implements
         startDemo();
         new backgroundoperation(mClusterManager,getMap()).execute();
     }
+
+
 
     /**
      * Draws profile photos inside markers (using IconGenerator).
