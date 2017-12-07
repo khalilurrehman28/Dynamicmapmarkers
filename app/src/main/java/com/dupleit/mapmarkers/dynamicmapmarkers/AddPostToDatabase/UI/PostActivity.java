@@ -214,7 +214,7 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
                     Toast.makeText(getApplicationContext(), "This app requires location permissions to be granted", Toast.LENGTH_LONG).show();
                     finish();
                 }
-                break;
+            break;
         }
     }
 

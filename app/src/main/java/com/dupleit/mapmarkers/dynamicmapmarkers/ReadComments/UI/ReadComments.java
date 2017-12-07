@@ -1,9 +1,6 @@
 package com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.UI;
 
-import android.content.Intent;
 import android.content.res.Resources;
-import android.os.Handler;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -43,12 +40,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ReadComments extends AppCompatActivity {
-    @BindView(R.id.messageRecyclerView)
-    RecyclerView recyclerView;
-    @BindView(R.id.progressBar)
-    ProgressBar progressBar;
-    @BindView(R.id.emoji_btn)
-    ImageView emojiImageView;
+    @BindView(R.id.messageRecyclerView) RecyclerView recyclerView;
+    @BindView(R.id.progressBar) ProgressBar progressBar;
+    @BindView(R.id.emoji_btn) ImageView emojiImageView;
     public EmojIconActions emojIcon;
     ArrayList<CommentData> commentList;
     commentAdapter mAdapter;
@@ -57,9 +51,6 @@ public class ReadComments extends AppCompatActivity {
     @BindView(R.id.messageEditText) EmojiconEditText mMessageEditText;
     @BindView(R.id.sendButton) ImageButton mSendButton;
     @BindView(R.id.selectImage) ImageButton selectImage;
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,8 +83,6 @@ public class ReadComments extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-
                 if (charSequence.toString().trim().length() > 0) {
                     selectImage.setVisibility(View.GONE);
                     mSendButton.setVisibility(View.VISIBLE);
@@ -105,9 +94,6 @@ public class ReadComments extends AppCompatActivity {
                     mSendButton.setVisibility(View.GONE);
 
                     }
-
-
-
             }
 
             @Override
@@ -115,9 +101,6 @@ public class ReadComments extends AppCompatActivity {
 
             }
         });
-
-
-
 
         emojIcon = new EmojIconActions(this, rootView, mMessageEditText, emojiImageView);
         emojIcon.ShowEmojIcon();
@@ -141,8 +124,6 @@ public class ReadComments extends AppCompatActivity {
                 }
             }
         });
-
-
     }
 
     private void sendComment(final String getEditTextValue) {

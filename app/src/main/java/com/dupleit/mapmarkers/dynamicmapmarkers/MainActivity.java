@@ -1,5 +1,6 @@
 package com.dupleit.mapmarkers.dynamicmapmarkers;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,8 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Parcelable;
 import android.os.StrictMode;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -62,9 +61,9 @@ public class MainActivity extends AppCompatActivity implements
 
     //static final float COORDINATE_OFFSET = 0.002f;
     private static final int REQUEST= 112;
-    Uri fileUri;
-    String picturePath;
-    Uri selectedImage;
+    private static final int GALLERY_REQUEST = 101;
+    private static final int CAMERA_REQUEST= 100;
+
     Bitmap photo;
     private ClusterManager<Datum> mClusterManager;
     private GoogleMap mMap;
@@ -152,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements
             String[] PERMISSIONS = {
                     android.Manifest.permission.READ_EXTERNAL_STORAGE,
                     android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.CAMERA
             };
             if (!hasPermissions(this, PERMISSIONS)) {
                 Log.d("TAG","@@@ IN IF hasPermissions");
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST: {
@@ -199,11 +199,8 @@ public class MainActivity extends AppCompatActivity implements
         if (getApplicationContext().getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_CAMERA)) {
             // Open default camera
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-
-            // start the image capture Intent
-            startActivityForResult(intent, 100);
+            Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(cameraIntent, CAMERA_REQUEST);
 
         } else {
             Toast.makeText(getApplication(), "Camera not supported", Toast.LENGTH_LONG).show();
@@ -211,7 +208,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void selectFromGallery() {
-        showToast("Gallery");
+        /*showToast("Gallery");GALLERY_REQUEST*/
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), GALLERY_REQUEST);
+
     }
     @Override
    /* protected  void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -235,17 +237,17 @@ public class MainActivity extends AppCompatActivity implements
         }
     }*/
    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        selectedImage = null;
-        if (requestCode == 100 && resultCode == RESULT_OK) {
 
-            selectedImage = data.getData();
+        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
+           // startActivity(new Intent(getApplicationContext(),));
 
-            showToast("Uri "+selectedImage);
-
-
-        }else {
+            //(Uri) data.getExtras().get("data");
+        } else if (requestCode == GALLERY_REQUEST && resultCode == RESULT_OK) {
+            data.getData();
+        }else{
             showToast("false");
         }
+
     }
 
     private static boolean hasPermissions(Context context, String... permissions) {
