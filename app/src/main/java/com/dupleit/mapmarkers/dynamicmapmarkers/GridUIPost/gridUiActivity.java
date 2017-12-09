@@ -19,7 +19,7 @@ import com.dupleit.mapmarkers.dynamicmapmarkers.Network.APIService;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.ApiClient;
 import com.dupleit.mapmarkers.dynamicmapmarkers.R;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.ReadPostActivity;
-import com.dupleit.mapmarkers.dynamicmapmarkers.RecyclerTouchListener;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.RecyclerTouchListener;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.Datum;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.UsersMapsMarkers;
 import com.google.android.gms.maps.model.LatLng;

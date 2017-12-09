@@ -27,6 +27,7 @@ import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.PreferenceManager;
 import com.dupleit.mapmarkers.dynamicmapmarkers.GridUIPost.gridUiActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Login.LoginActivity;
+import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.commentMessageObject;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.ReadPostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.backgroundOperations.backgroundoperation;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.Datum;
@@ -39,6 +40,12 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
@@ -50,7 +57,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
 
 public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback,
@@ -71,19 +77,52 @@ public class MainActivity extends AppCompatActivity implements
    private FloatingActionButton fab_main,fab_gallery,fab_camera;
     private Animation fab_open,fab_close,rotate_forward,rotate_backward;
     String checktype=null;
-
+    private FirebaseDatabase database;
+    private DatabaseReference mFirebaseReference;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         setContentView(R.layout.activity_main);
-
+        database = FirebaseDatabase.getInstance();
+        mFirebaseReference = database.getReference().child("post");
 
         if ((new PreferenceManager(this).getUserID()).equals("")){
             startActivity(new Intent(this,LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
             finish(); //to end current activity
         }
+
+
+
+        mFirebaseReference.child("1212").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d("commentData",""+dataSnapshot.getChildrenCount());
+                commentMessageObject comment = dataSnapshot.getValue(commentMessageObject.class);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         setUpMap();
         fab_main = (FloatingActionButton)findViewById(R.id.fab_main);
@@ -112,10 +151,15 @@ public class MainActivity extends AppCompatActivity implements
                 checktype = "gallery";
                 break;
             case R.id.fab_camera:
-                checkPermissionUser("camera");
-                checktype = "camera";
+                /*checkPermissionUser("camera");
+                checktype = "camera";*/
 
-                Log.d("Raj", "Fab 2");
+                commentMessageObject comment = new commentMessageObject(true,"32132132131","shabcjhabscjhbas",true,true,"sjhcbjsa",1,"jksadkas");
+                mFirebaseReference.child("4").push().setValue(comment);
+
+
+
+                //Log.d("Raj", "Fab 2");
                 break;
         }
     }
@@ -241,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
            // startActivity(new Intent(getApplicationContext(),));
 
-            //(Uri) data.getExtras().get("data");
+            Log.d("Camera_Data",""+data.getExtras().get("data"));
         } else if (requestCode == GALLERY_REQUEST && resultCode == RESULT_OK) {
             data.getData();
         }else{

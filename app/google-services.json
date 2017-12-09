@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "424225893564",
+    "firebase_url": "https://dynamicmapmarkers.firebaseio.com",
+    "project_id": "dynamicmapmarkers",
+    "storage_bucket": "dynamicmapmarkers.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424225893564:android:76bb107789e1a543",
+        "android_client_info": {
+          "package_name": "com.dupleit.mapmarkers.dynamicmapmarkers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "424225893564-0gsrca3d9v1sc7to3242pho8i9jm6014.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dupleit.mapmarkers.dynamicmapmarkers",
+            "certificate_hash": "0fd0361219f9153b717a40cb4f55ee343695765e"
+          }
+        },
+        {
+          "client_id": "424225893564-rtikoepa4o7juas0d6jufd4tlf14ms71.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3suf8_ydRCeQ7udk1WJWQ61_1vvjcTyc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "424225893564-rtikoepa4o7juas0d6jufd4tlf14ms71.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

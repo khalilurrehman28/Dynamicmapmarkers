@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.GridSpacingItemDecoration;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.PreferenceManager;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.checkInternetState;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.APIService;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.ApiClient;
@@ -26,6 +27,13 @@ import com.dupleit.mapmarkers.dynamicmapmarkers.R;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Adapter.commentAdapter;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.CommentData;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.CommentResponse;
+import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.commentMessageObject;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +59,8 @@ public class ReadComments extends AppCompatActivity {
     @BindView(R.id.messageEditText) EmojiconEditText mMessageEditText;
     @BindView(R.id.sendButton) ImageButton mSendButton;
     @BindView(R.id.selectImage) ImageButton selectImage;
+    private FirebaseDatabase database;
+    private DatabaseReference mFirebaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +82,10 @@ public class ReadComments extends AppCompatActivity {
         recyclerView.addItemDecoration(new GridSpacingItemDecoration(1, dpToPx(1), true));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
+        database = FirebaseDatabase.getInstance();
+        mFirebaseReference = database.getReference().child("post");
+
+
         prepareComments();
 
         mMessageEditText.addTextChangedListener(new TextWatcher() {
@@ -126,12 +140,14 @@ public class ReadComments extends AppCompatActivity {
         });
     }
 
-    private void sendComment(final String getEditTextValue) {
+    private void sendComment(String getEditTextValue) {
         Date curDate = new Date();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         final String DateToStr = format.format(curDate);
-
-        if (!checkInternetState.getInstance(ReadComments.this).isOnline()) {
+        commentMessageObject comment = new commentMessageObject(false,DateToStr,getEditTextValue,false,false,"",Integer.parseInt(new PreferenceManager(getApplicationContext()).getUserID()),(new PreferenceManager(getApplicationContext()).getUsername()));
+        mFirebaseReference.child(getIntent().getStringExtra("PostID")).push().setValue(comment);
+        mMessageEditText.setText("");
+        /*if (!checkInternetState.getInstance(ReadComments.this).isOnline()) {
             Toast.makeText(this, "Please Check Your Internet Connection.", Toast.LENGTH_SHORT).show();
             //new CustomToast().Show_Toast(ctx, view,"Please Check Your Internet Connection." );
         }else {
@@ -161,7 +177,9 @@ public class ReadComments extends AppCompatActivity {
                     Log.d("onFailure", t.toString());
                 }
             });
-        }
+        }*/
+       /* commentMessageObject comment = new commentMessageObject(1,"Khalil","hello","21321321321","ksmclasckmalsc",true,true,true);
+        mFirebaseReference.push().setValue(comment);*/
     }
 
 
@@ -170,39 +188,88 @@ public class ReadComments extends AppCompatActivity {
         if (!checkInternetState.getInstance(ReadComments.this).isOnline()) {
             progressBar.setVisibility(View.GONE);
             Toast.makeText(ReadComments.this, "Please Check your internet connection.", Toast.LENGTH_SHORT).show();
-        }
-        APIService service = ApiClient.getClient().create(APIService.class);
-        Call<CommentResponse> userCall = service.getpostcomment_request(1);
-        userCall.enqueue(new Callback<CommentResponse>() {
-            @Override
-            public void onResponse(Call<CommentResponse> call, Response<CommentResponse> response) {
-                progressBar.setVisibility(View.GONE);
-                if (response.body().getStatus()) {
-                    for (int i = 0; i < response.body().getCommentData().size(); i++) {
-                        CommentData oth = new CommentData();
-                        oth.setCOMMENTDATETIME(response.body().getCommentData().get(i).getCOMMENTDATETIME());
-                        oth.setCOMMENTDELETE(response.body().getCommentData().get(i).getCOMMENTDELETE());
-                        oth.setCOMMENTIMAGEURL(response.body().getCommentData().get(i).getCOMMENTIMAGEURL());
-                        oth.setUSEREMAIL(response.body().getCommentData().get(i).getUSEREMAIL());
-                        oth.setUSERIMAGE(response.body().getCommentData().get(i).getUSERIMAGE());
-                        oth.setUSERNAME(response.body().getCommentData().get(i).getUSERNAME());
+        }else {
+            progressBar.setVisibility(View.GONE);
+            mFirebaseReference.child(getIntent().getStringExtra("PostID")).addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                        oth.setCOMMENTTEXT(response.body().getCommentData().get(i).getCOMMENTTEXT());
-                        //Log.d("MoneyConvert",new digitToNumber().Converter(mView.getContext()(),response.body().getListData().get(i).getCommentData().getpROPPRICE(),true));
-                        commentList.add(oth);
-                        mAdapter.notifyDataSetChanged();
+                    commentMessageObject commentMessageObject = dataSnapshot.getValue(com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.commentMessageObject.class);
+                    CommentData oth = new CommentData();
+                    oth.setCOMMENTDATETIME("2017-11-17 12:54:39");
+                    oth.setCOMMENTDELETE("nope");
+                    oth.setCOMMENTIMAGEURL("");
+                    oth.setUSEREMAIL("");
+                    oth.setUSERIMAGE("");
+                    oth.setUSERNAME(commentMessageObject.getUser_name());
+                    oth.setCOMMENTTEXT(commentMessageObject.getCommment_text());
+                    /* this.questionList.add(0, question);
+    notifyItemInserted(0);
+    mRecyclerView.smoothScrollToPosition(0);
+                    * */
 
-                    }
-                } else {
-                    Toast.makeText(ReadComments.this, "No data found", Toast.LENGTH_SHORT).show();
+                    commentList.add(0,oth);
+                    mAdapter.notifyItemInserted(0);
+                    recyclerView.smoothScrollToPosition(0);
+                    //mAdapter.notifyDataSetChanged();
                 }
-            }
 
-            @Override
-            public void onFailure(Call<CommentResponse> call, Throwable t) {
-                Log.d("onFailure", t.toString());
-            }
-        });
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+
+
+           /* APIService service = ApiClient.getClient().create(APIService.class);
+            Call<CommentResponse> userCall = service.getpostcomment_request(1);
+            userCall.enqueue(new Callback<CommentResponse>() {
+                @Override
+                public void onResponse(Call<CommentResponse> call, Response<CommentResponse> response) {
+                    progressBar.setVisibility(View.GONE);
+                    if (response.body().getStatus()) {
+                        for (int i = 0; i < response.body().getCommentData().size(); i++) {
+                            CommentData oth = new CommentData();
+                            oth.setCOMMENTDATETIME(response.body().getCommentData().get(i).getCOMMENTDATETIME());
+                            oth.setCOMMENTDELETE(response.body().getCommentData().get(i).getCOMMENTDELETE());
+                            oth.setCOMMENTIMAGEURL(response.body().getCommentData().get(i).getCOMMENTIMAGEURL());
+                            oth.setUSEREMAIL(response.body().getCommentData().get(i).getUSEREMAIL());
+                            oth.setUSERIMAGE(response.body().getCommentData().get(i).getUSERIMAGE());
+                            oth.setUSERNAME(response.body().getCommentData().get(i).getUSERNAME());
+
+                            oth.setCOMMENTTEXT(response.body().getCommentData().get(i).getCOMMENTTEXT());
+                            //Log.d("MoneyConvert",new digitToNumber().Converter(mView.getContext()(),response.body().getListData().get(i).getCommentData().getpROPPRICE(),true));
+                            commentList.add(oth);
+                            mAdapter.notifyDataSetChanged();
+
+                        }
+                    } else {
+                        Toast.makeText(ReadComments.this, "No data found", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<CommentResponse> call, Throwable t) {
+                    Log.d("onFailure", t.toString());
+                }
+            });*/
+        }
     }
 
     private int dpToPx(int dp) {

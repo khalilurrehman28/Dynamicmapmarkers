@@ -1,4 +1,4 @@
-package com.dupleit.mapmarkers.dynamicmapmarkers;
+package com.dupleit.mapmarkers.dynamicmapmarkers.Constant;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

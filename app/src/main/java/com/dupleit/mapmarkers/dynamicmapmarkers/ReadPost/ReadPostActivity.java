@@ -15,9 +15,15 @@ import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.APIService;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.ApiClient;
 import com.dupleit.mapmarkers.dynamicmapmarkers.R;
+import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.commentMessageObject;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.UI.ReadComments;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.model.PostDatum;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.model.UserPost;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -43,9 +49,12 @@ public class ReadPostActivity extends AppCompatActivity {
     @BindView(R.id.ListerImage) CircleImageView ListerImage;
     @BindView(R.id.layoutLike) LinearLayout layoutLike;
 
+    private FirebaseDatabase database;
+    private DatabaseReference mFirebaseReference;
+
     @OnClick(R.id.layoutComment)
     public void showComments(){
-        startActivity(new Intent(this, ReadComments.class));
+        startActivity(new Intent(this, ReadComments.class).putExtra("PostID",getIntent().getStringExtra("PostID")));
     }
     @OnClick(R.id.layoutLike)
     public void likePost(){
@@ -54,6 +63,7 @@ public class ReadPostActivity extends AppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_show);
         ButterKnife.bind(this);
@@ -62,6 +72,43 @@ public class ReadPostActivity extends AppCompatActivity {
         //Toast.makeText(this, ""+getIntent().getStringExtra("PostID"), Toast.LENGTH_SHORT).show();
         UpdateUI(getIntent().getStringExtra("PostID"));
         setTitle("Profile");
+
+        database = FirebaseDatabase.getInstance();
+        mFirebaseReference = database.getReference().child("post");
+
+        getcommentCount(getIntent().getStringExtra("PostID"));
+    }
+
+    private void getcommentCount(String postID) {
+        Toast.makeText(this, ""+postID, Toast.LENGTH_SHORT).show();
+        mFirebaseReference.child(postID).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d("commentData",""+dataSnapshot.getChildrenCount());
+                //commentMessageObject comment = dataSnapshot.getValue(commentMessageObject.class);
+                comments.setText(dataSnapshot.getChildrenCount()+" Comments");
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void UpdateUI(String postID) {
@@ -71,9 +118,9 @@ public class ReadPostActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<UserPost> call, retrofit2.Response<UserPost> response) {
                 if (response.isSuccessful() && response.body().getStatus()){
-                    Toast.makeText(ReadPostActivity.this, ""+response.body().getStatus(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(ReadPostActivity.this, ""+response.body().getStatus(), Toast.LENGTH_SHORT).show();
                     List<PostDatum> postData = response.body().getPostData();
-                    Toast.makeText(ReadPostActivity.this, ""+postData.size(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(ReadPostActivity.this, ""+postData.size(), Toast.LENGTH_SHORT).show();
                     for (PostDatum post : postData) {
                         userName.setText(post.getUSERNAME());
                         uploadImageTime.setText(post.getPOSTDATETIME());
