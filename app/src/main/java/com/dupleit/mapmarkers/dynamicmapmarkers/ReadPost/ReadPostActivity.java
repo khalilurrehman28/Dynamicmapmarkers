@@ -24,6 +24,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -63,28 +64,24 @@ public class ReadPostActivity extends AppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_show);
         ButterKnife.bind(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        database = FirebaseDatabase.getInstance();
+        mFirebaseReference = database.getReference().child("post");
         //Toast.makeText(this, ""+getIntent().getStringExtra("PostID"), Toast.LENGTH_SHORT).show();
         UpdateUI(getIntent().getStringExtra("PostID"));
         setTitle("Profile");
-
-        database = FirebaseDatabase.getInstance();
-        mFirebaseReference = database.getReference().child("post");
-
         getcommentCount(getIntent().getStringExtra("PostID"));
     }
 
     private void getcommentCount(String postID) {
         Toast.makeText(this, ""+postID, Toast.LENGTH_SHORT).show();
-        mFirebaseReference.child(postID).addChildEventListener(new ChildEventListener() {
+       /* mFirebaseReference.child(postID).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d("commentData",""+dataSnapshot.getChildrenCount());
+                //Log.d("commentData",""+dataSnapshot.getChildrenCount());
                 //commentMessageObject comment = dataSnapshot.getValue(commentMessageObject.class);
                 comments.setText(dataSnapshot.getChildrenCount()+" Comments");
             }
@@ -102,6 +99,22 @@ public class ReadPostActivity extends AppCompatActivity {
             @Override
             public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });*/
+
+        mFirebaseReference.child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                /*for (DataSnapshot snap: dataSnapshot.getChildren()) {
+                    Log.e(snap.getKey(),snap.getChildrenCount() + "");
+
+                }*/
+                comments.setText(dataSnapshot.getChildrenCount()+" Comments");
             }
 
             @Override

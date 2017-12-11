@@ -148,7 +148,7 @@
                         android:id="@+id/Likes"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="1500 Likes"
+                        android:text="0 Likes"
                         android:textSize="14dp"
                         android:textColor="@color/colorBlack" />
                     <TextView
@@ -156,7 +156,7 @@
                         android:id="@+id/comments"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="1500 Comments"
+                        android:text="0 Comments"
                         android:gravity="end"
                         android:textColor="@color/colorBlack" />
 
@@ -185,7 +185,6 @@
                             android:layout_height="26dp"
                             android:layout_weight="0.70"
                             android:id="@+id/imageFavorite"
-
                             android:layout_marginRight="4dp"
                             android:layout_marginLeft="2dp"
                             android:src="@drawable/ic_like"
