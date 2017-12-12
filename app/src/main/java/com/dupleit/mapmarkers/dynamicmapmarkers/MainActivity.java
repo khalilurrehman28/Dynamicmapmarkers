@@ -1,17 +1,21 @@
 package com.dupleit.mapmarkers.dynamicmapmarkers;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Parcelable;
 import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -21,13 +25,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.UI.PostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.PreferenceManager;
 import com.dupleit.mapmarkers.dynamicmapmarkers.GridUIPost.gridUiActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Login.LoginActivity;
-import com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.commentMessageObject;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.ReadPostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.backgroundOperations.backgroundoperation;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.Datum;
@@ -40,23 +46,20 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 
 public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback,
@@ -69,60 +72,29 @@ public class MainActivity extends AppCompatActivity implements
     private static final int REQUEST= 112;
     private static final int GALLERY_REQUEST = 101;
     private static final int CAMERA_REQUEST= 100;
+    private Uri picUri;
+    private File pic;
 
-    Bitmap photo;
     private ClusterManager<Datum> mClusterManager;
     private GoogleMap mMap;
     private Boolean isFabOpen = false;
-   private FloatingActionButton fab_main,fab_gallery,fab_camera;
+    private FloatingActionButton fab_main,fab_gallery,fab_camera;
     private Animation fab_open,fab_close,rotate_forward,rotate_backward;
     String checktype=null;
-    private FirebaseDatabase database;
-    private DatabaseReference mFirebaseReference;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
         setContentView(R.layout.activity_main);
-        database = FirebaseDatabase.getInstance();
-        mFirebaseReference = database.getReference().child("post");
 
         if ((new PreferenceManager(this).getUserID()).equals("")){
             startActivity(new Intent(this,LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
             finish(); //to end current activity
         }
-
-
-
-        mFirebaseReference.child("1212").addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d("commentData",""+dataSnapshot.getChildrenCount());
-                commentMessageObject comment = dataSnapshot.getValue(commentMessageObject.class);
-
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         setUpMap();
         fab_main = (FloatingActionButton)findViewById(R.id.fab_main);
@@ -149,17 +121,13 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.fab_gallery:
                 checkPermissionUser("gallery");
                 checktype = "gallery";
+                //startActivity(new Intent(this,UploadPostActivity.class));
                 break;
             case R.id.fab_camera:
-                /*checkPermissionUser("camera");
-                checktype = "camera";*/
+                checkPermissionUser("camera");
+                checktype = "camera";
 
-                commentMessageObject comment = new commentMessageObject(true,"32132132131","shabcjhabscjhbas",true,true,"sjhcbjsa",1,"jksadkas");
-                mFirebaseReference.child("4").push().setValue(comment);
-
-
-
-                //Log.d("Raj", "Fab 2");
+                Log.d("Raj", "Fab 2");
                 break;
         }
     }
@@ -242,9 +210,24 @@ public class MainActivity extends AppCompatActivity implements
     private void openCamera() {
         if (getApplicationContext().getPackageManager().hasSystemFeature(
                 PackageManager.FEATURE_CAMERA)) {
-            // Open default camera
-            Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(cameraIntent, CAMERA_REQUEST);
+
+            /*Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+            startActivityForResult(intent, CAMERA_REQUEST);*/
+            try {
+                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+
+                pic = new File(Environment.getExternalStorageDirectory(),
+                        "tmp_" + String.valueOf(System.currentTimeMillis()) + ".jpg");
+
+                picUri = Uri.fromFile(pic);
+
+                cameraIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, picUri);
+
+                cameraIntent.putExtra("return-data", true);
+                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+            } catch (ActivityNotFoundException e) {
+                e.printStackTrace();
+            }
 
         } else {
             Toast.makeText(getApplication(), "Camera not supported", Toast.LENGTH_LONG).show();
@@ -252,46 +235,72 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void selectFromGallery() {
-        /*showToast("Gallery");GALLERY_REQUEST*/
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), GALLERY_REQUEST);
+        Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(i, GALLERY_REQUEST);
 
     }
+
     @Override
-   /* protected  void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 100 && resultCode == Activity.RESULT_OK&& data != null && data.getData() != null) {
 
-            Uri uri = data.getData();
+        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK && picUri != null) {
 
-            if (!uri.equals("")){
-                Toast.makeText(this, "true "+uri, Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(MainActivity.this, PostActivity.class);
-                i.putExtra("Uri",uri);
-                startActivity(i);
+          /*  Bitmap photo = (Bitmap) data.getExtras().get("data");
+            // CALL THIS METHOD TO GET THE URI FROM THE BITMAP
+            Uri tempUri = getImageUri(getApplicationContext(), photo);*/
+
+            // CALL THIS METHOD TO GET THE ACTUAL PATH
+            File finalFile = new File(getRealPathFromURI(picUri));
+            String mediaPath = String.valueOf(finalFile);
+            if (!mediaPath.equals("")) {
+                Intent cameradata = new Intent(getApplicationContext(), PostActivity.class);
+                cameradata.putExtra("mediaPath", mediaPath);
+                Log.e("cameraPath ",mediaPath);
+                startActivity(cameradata);
             }else {
-                showToast("Something went wrong");
+                showToast("something went wrong");
             }
 
+            Log.e("cameraUri  ","bitmap "+" image uri"+mediaPath);
 
-        }else {
-            showToast("false");
-        }
-    }*/
-   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
-           // startActivity(new Intent(getApplicationContext(),));
-
-            Log.d("Camera_Data",""+data.getExtras().get("data"));
-        } else if (requestCode == GALLERY_REQUEST && resultCode == RESULT_OK) {
-            data.getData();
-        }else{
-            showToast("false");
         }
 
+        if (requestCode == GALLERY_REQUEST && resultCode == RESULT_OK && data != null) {
+
+            Uri imageUri = data.getData();
+            String mediaPath = getRealPathFromURI(imageUri);
+
+            if (!mediaPath.equals("")) {
+                Intent cameradata = new Intent(getApplicationContext(), PostActivity.class);
+                cameradata.putExtra("mediaPath", mediaPath);
+                Log.e("GalleryPath ",mediaPath);
+
+                startActivity(cameradata);
+            }else {
+                showToast("something went wrong");
+            }
+            Log.e("GalleryURi  ","image uri"+mediaPath);
+        }
+    }
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+    private String getRealPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = MainActivity.this.getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
     }
 
     private static boolean hasPermissions(Context context, String... permissions) {
@@ -315,17 +324,17 @@ public class MainActivity extends AppCompatActivity implements
         return super.onCreateOptionsMenu(menu);
     }*/
 
-   /* @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.uploadPost:
-                Intent intent= new Intent(this,PostActivity.class);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }*/
+    /* @Override
+     public boolean onOptionsItemSelected(MenuItem item) {
+         switch (item.getItemId()) {
+             case R.id.uploadPost:
+                 Intent intent= new Intent(this,PostActivity.class);
+                 startActivity(intent);
+                 return true;
+             default:
+                 return super.onOptionsItemSelected(item);
+         }
+     }*/
     private void setUpMap() {
         ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
     }
@@ -418,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements
             for (Datum p : cluster.getItems()) {
                 // Draw 4 at most.
                 if (profilePhotos.size() == 2) break;
-                    Drawable drawable = null;
+                Drawable drawable = null;
                 try {
                     drawable = new BitmapDrawable(getResources(),convertUrlToDrawable(p.getUSERIMAGE()));
                 } catch (IOException e) {

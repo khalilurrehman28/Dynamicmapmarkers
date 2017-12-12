@@ -64,7 +64,7 @@
             app:backgroundTint="#F44336"
             app:pressedTranslationZ="12dp"
             android:layout_margin="@dimen/fab_margin"
-            android:src="@drawable/ic_gallery" />
+            android:src="@drawable/ic_add" />
     </FrameLayout>
 </RelativeLayout>
 

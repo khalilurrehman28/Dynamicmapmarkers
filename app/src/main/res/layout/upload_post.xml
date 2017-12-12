@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#b5000000"
+    android:id="@+id/frame"
+    tools:context="com.dupleit.mapmarkers.dynamicmapmarkers.UploadPostActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/layoutTop"
+        android:padding="12dp"
+        android:elevation="4dp"
+        android:layout_alignParentTop="true">
+        <ImageView
+            android:layout_width="26dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_back"
+            android:id="@+id/goBackActivity"
+            android:elevation="2dp"
+            android:layout_alignParentLeft="true"/>
+
+        <ImageView
+            android:id="@+id/doCrop"
+            android:layout_width="32dp"
+            android:layout_height="30dp"
+            android:elevation="2dp"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="right|end"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/ic_crop" />
+
+
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/imageUpload"
+            android:scaleType="fitCenter"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/updateProfile"
+        android:background="#80000000"
+        android:layout_alignParentBottom="true">
+
+        <EditText
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/login_layout"
+            android:minHeight="60dp"
+            android:maxHeight="250dp"
+            android:id="@+id/postDescription"
+            android:textColor="@color/colorWhite"
+            android:hint="Say something about this post..."
+            android:paddingRight="12dp"
+            android:textCursorDrawable="@null"
+            android:paddingLeft="12dp"
+            android:textColorHint="@color/colorSilver"
+            android:backgroundTint="@android:color/transparent"
+            android:inputType="textAutoComplete"/>
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/uploadPost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="36dp"
+        android:layout_marginEnd="16dp"
+        app:backgroundTint="@color/colorPrimaryDark"
+        app:elevation="6dp"
+        android:clickable="true"
+        app:srcCompat="@drawable/ic_send" />
+
+    <!--<ImageView
+        android:id="@+id/goBackActivity"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_margin="12dp"
+        android:elevation="2dp"
+        app:srcCompat="@drawable/ic_back" />
+    <ImageView
+        android:id="@+id/doCrop"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_margin="12dp"
+        app:srcCompat="@drawable/ic_crop" />-->
+</RelativeLayout>

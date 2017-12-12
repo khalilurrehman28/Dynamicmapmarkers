@@ -2,9 +2,10 @@ package com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.UI;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.Context;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -13,18 +14,17 @@ import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.Model.UploadImageResponse;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.PreferenceManager;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.ProgressRequestBody;
@@ -37,26 +37,16 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
-
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.io.FileNotFoundException;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
-import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static android.graphics.BitmapFactory.decodeFile;
 
 public class PostActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener, ProgressRequestBody.UploadCallbacks{
 
@@ -64,37 +54,61 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
     private final static int MY_PERMISSION_FINE_LOCATION = 101;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    @BindView(R.id.play_list_cover) ImageView userImage;
+    private static final int CROP_IMAGE = 301;
+    @BindView(R.id.imageUpload) ImageView userImage;
     @BindView(R.id.postDescription)
     EditText postDescription;
     @BindView(R.id.uploadPost)
-    Button uploadPost;
+    FloatingActionButton uploadPost;
     @BindView(R.id.frame)
-    LinearLayout frame;
+    RelativeLayout frame;
     Snackbar snackbar;
-
+    @BindView(R.id.goBackActivity) ImageView goback;
+    @BindView(R.id.doCrop) ImageView doCrop;
     String mediaPath;
     double latitude,longitude;
     ProgressDialog pDialog;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_post);
+        setContentView(R.layout.upload_post);
         ButterKnife.bind(this);
         latitude=0.0;
         longitude=0.0;
-        mediaPath = "";
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-        userImage.setOnClickListener(new View.OnClickListener() {
+
+
+        mediaPath = getIntent().getStringExtra("mediaPath");
+
+        if (!mediaPath.equals("")){
+           // userImage.setImageBitmap(decodeSampledBitmapFromResource(mediaPath, 4000, 4000));
+            //Toast.makeText(PostActivity.this, "Image selected "+mediaPath, Toast.LENGTH_LONG).show();
+            File imgFile = new  File(mediaPath);
+
+            if(imgFile.exists()){
+
+                Bitmap myBitmap = decodeFile(imgFile.getAbsolutePath());
+                userImage.setImageBitmap(myBitmap);
+
+            }
+        }
+
+        goback.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                checkPermissionUser();
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        doCrop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cropImage(mediaPath);
             }
         });
 
@@ -102,15 +116,86 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onClick(View view) {
                 if (validate()){
-                    if (latitude != 0.0 && longitude!= 0.0)
-
+                    if (latitude != 0.0 && longitude!= 0.0){
                         uploadYourPost(mediaPath,postDescription.getText().toString());
-                    Toast.makeText(PostActivity.this, ""+latitude+"   "+longitude, Toast.LENGTH_SHORT).show();
+                    }
+                    //Toast.makeText(PostActivity.this, ""+latitude+"   "+longitude, Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
     }
+
+    private void cropImage(String mediaPath) {
+        try {
+            Intent cropIntent = new Intent("com.android.camera.action.CROP");
+
+            File f = new File(mediaPath);
+            Uri contentUri = Uri.fromFile(f);
+
+            cropIntent.setDataAndType(contentUri, "image/*");
+            cropIntent.putExtra("crop", "false");
+            cropIntent.putExtra("aspectX", 1);
+            cropIntent.putExtra("aspectY", 1);
+            cropIntent.putExtra("outputX", 1024); //512
+            cropIntent.putExtra("outputY", 1024); //512
+
+            cropIntent.putExtra("return-data", true);
+            startActivityForResult(cropIntent, CROP_IMAGE);
+        }
+        catch (ActivityNotFoundException e) {
+            String errorMessage = "your device doesn't support the crop action!";
+            Toast toast = Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CROP_IMAGE) {
+            if (resultCode == RESULT_OK) {
+                if (data != null) {
+                   Uri uri = data.getData();
+                    if (uri != null) {
+                        Bitmap photo = decodeUriAsBitmap(uri);
+                        mediaPath = getRealPathFromURI(uri);
+                        userImage.setImageBitmap(photo);
+                    } else {
+                        Toast.makeText(this, "Image not cropped", Toast.LENGTH_SHORT).show();
+                    }
+
+
+                }
+            }
+
+        }
+    }
+
+    private String getRealPathFromURI(Uri contentURI) {
+        String result;
+        Cursor cursor = getApplicationContext().getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) { // Source is Dropbox or other similar local file path
+            result = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+            result = cursor.getString(idx);
+            cursor.close();
+        }
+        return result;
+    }
+
+    private Bitmap decodeUriAsBitmap(Uri uri){
+        Bitmap bitmap = null;
+        try {
+            bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return bitmap;
+    }
+
 
     private void uploadYourPost(String mediaPath,  String postDescription) {
         pDialog = new ProgressDialog(this);
@@ -176,81 +261,6 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
             pDialog.dismiss();
     }
 
-    private void checkPermissionUser() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            Log.d("TAG","@@@ IN IF Build.VERSION.SDK_INT >= 23");
-            String[] PERMISSIONS = {
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            };
-            if (!hasPermissions(this, PERMISSIONS)) {
-                Log.d("TAG","@@@ IN IF hasPermissions");
-                ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST );
-            } else {
-                Log.d("TAG","@@@ IN ELSE hasPermissions");
-                selectImage();
-            }
-        } else {
-            Log.d("TAG","@@@ IN ELSE  Build.VERSION.SDK_INT >= 23");
-            selectImage();
-        }
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case REQUEST: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("TAG","@@@ PERMISSIONS grant");
-                    selectImage();
-                } else {
-                    Log.d("TAG","@@@ PERMISSIONS Denied");
-                    Toast.makeText(this, "PERMISSIONS Denied", Toast.LENGTH_LONG).show();
-                }
-            }
-            break;
-            case MY_PERMISSION_FINE_LOCATION:
-                if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getApplicationContext(), "This app requires location permissions to be granted", Toast.LENGTH_LONG).show();
-                    finish();
-                }
-            break;
-        }
-    }
-
-    private static boolean hasPermissions(Context context, String... permissions) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
-            for (String permission : permissions) {
-                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-    private void selectImage() {
-        CropImage.activity(null).setGuidelines(CropImageView.Guidelines.ON).start(PostActivity.this);
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        mediaPath = "";
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK){
-                Uri selectedImageUri = result.getUri();
-                mediaPath = selectedImageUri.getPath();
-                //Toast.makeText(profile.this, "media path  "+mediaPath, Toast.LENGTH_SHORT).show();
-                if (!mediaPath.equals("")){
-                    userImage.setImageBitmap(decodeSampledBitmapFromResource(mediaPath, 600, 600));
-                    //Toast.makeText(profile.this, "Image selected "+mediaPath, Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-    }
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
 
@@ -305,37 +315,6 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
         // Disconnecting the client invalidates it.
         if (mGoogleApiClient.isConnected())
             mGoogleApiClient.disconnect();
-    }
-    public static Bitmap decodeSampledBitmapFromResource(String resId,
-                                                         int reqWidth, int reqHeight) {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(resId, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(resId, options);
-    }
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-// Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 2;
-
-        if (height > reqHeight || width > reqWidth) {
-            if (width > height) {
-                inSampleSize = Math.round((float) height / (float) reqHeight);
-            } else {
-                inSampleSize = Math.round((float) width / (float) reqWidth);
-            }
-        }
-        return inSampleSize;
     }
 
 

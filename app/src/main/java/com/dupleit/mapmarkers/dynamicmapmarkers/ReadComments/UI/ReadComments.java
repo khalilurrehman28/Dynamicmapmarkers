@@ -142,7 +142,7 @@ public class ReadComments extends AppCompatActivity {
 
     private void sendComment(String getEditTextValue) {
         Date curDate = new Date();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         final String DateToStr = format.format(curDate);
         commentMessageObject comment = new commentMessageObject(false,DateToStr,getEditTextValue,false,false,"",Integer.parseInt(new PreferenceManager(getApplicationContext()).getUserID()),(new PreferenceManager(getApplicationContext()).getUsername()));
         mFirebaseReference.child(getIntent().getStringExtra("PostID")).push().setValue(comment);
@@ -196,7 +196,7 @@ public class ReadComments extends AppCompatActivity {
 
                     commentMessageObject commentMessageObject = dataSnapshot.getValue(com.dupleit.mapmarkers.dynamicmapmarkers.ReadComments.Model.commentMessageObject.class);
                     CommentData oth = new CommentData();
-                    oth.setCOMMENTDATETIME("2017-11-17 12:54:39");
+                    oth.setCOMMENTDATETIME(commentMessageObject.getComment_datetime());
                     oth.setCOMMENTDELETE("nope");
                     oth.setCOMMENTIMAGEURL("");
                     oth.setUSEREMAIL("");
