@@ -3,6 +3,7 @@ package com.dupleit.mapmarkers.dynamicmapmarkers;
 import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -10,34 +11,50 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Parcelable;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
-
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.UI.PostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.PreferenceManager;
 import com.dupleit.mapmarkers.dynamicmapmarkers.GridUIPost.gridUiActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Login.LoginActivity;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Profile.ProfileActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost.ReadPostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.backgroundOperations.backgroundoperation;
 import com.dupleit.mapmarkers.dynamicmapmarkers.modal.Datum;
 import com.dupleit.mapmarkers.dynamicmapmarkers.multiPIcs.MultiDrawable;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -45,12 +62,19 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
+import com.nightonke.boommenu.BoomButtons.BoomButton;
+import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
+import com.nightonke.boommenu.BoomMenuButton;
+import com.nightonke.boommenu.ButtonEnum;
+import com.nightonke.boommenu.OnBoomListener;
+import com.nightonke.boommenu.Piece.PiecePlaceEnum;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -58,15 +82,18 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-import butterknife.BindView;
 
 public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback,
         ClusterManager.OnClusterClickListener<Datum>,
         ClusterManager.OnClusterInfoWindowClickListener<Datum>,
         ClusterManager.OnClusterItemClickListener<Datum>,
-        ClusterManager.OnClusterItemInfoWindowClickListener<Datum>,View.OnClickListener {
+        ClusterManager.OnClusterItemInfoWindowClickListener<Datum>,View.OnClickListener,
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     //static final float COORDINATE_OFFSET = 0.002f;
     private static final int REQUEST= 112;
@@ -77,10 +104,15 @@ public class MainActivity extends AppCompatActivity implements
 
     private ClusterManager<Datum> mClusterManager;
     private GoogleMap mMap;
+    GoogleApiClient mGoogleApiClient;
+    Location mLastLocation;
+    Marker mCurrLocationMarker;
+    LocationRequest mLocationRequest;
     private Boolean isFabOpen = false;
     private FloatingActionButton fab_main,fab_gallery,fab_camera;
     private Animation fab_open,fab_close,rotate_forward,rotate_backward;
     String checktype=null;
+    String current_location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,11 +123,72 @@ public class MainActivity extends AppCompatActivity implements
         StrictMode.setVmPolicy(builder.build());
         setContentView(R.layout.activity_main);
 
+        // for boom menu option on action bar
+        ActionBar mActionBar = getSupportActionBar();
+        assert mActionBar != null;
+        mActionBar.setDisplayShowHomeEnabled(false);
+        mActionBar.setDisplayShowTitleEnabled(false);
+        LayoutInflater mInflater = LayoutInflater.from(this);
+        View actionBar = mInflater.inflate(R.layout.activity_boom, null);
+        TextView mTitleTextView = (TextView) actionBar.findViewById(R.id.title_text);
+        mTitleTextView.setText(R.string.app_name);
+        mActionBar.setCustomView(actionBar);
+        mActionBar.setDisplayShowCustomEnabled(true);
+        ((Toolbar) actionBar.getParent()).setContentInsetsAbsolute(0,0);
+
+        BoomMenuButton rightBmb = (BoomMenuButton) actionBar.findViewById(R.id.action_bar_right_bmb);
+        rightBmb.setButtonEnum(ButtonEnum.Ham);
+        rightBmb.setPiecePlaceEnum(PiecePlaceEnum.HAM_2);
+        rightBmb.setButtonPlaceEnum(ButtonPlaceEnum.HAM_2);
+        ArrayList<Integer> names = new ArrayList<>();
+        names.add(R.string.profile);
+        names.add(R.string.logout);
+
+        for (int i = 0; i < rightBmb.getPiecePlaceEnum().pieceNumber(); i++)
+            rightBmb.addBuilder(BuilderManager.getHamButtonBuilder(names.get(i)));
+
+        rightBmb.setOnBoomListener(new OnBoomListener() {
+            @Override
+            public void onClicked(int index, BoomButton boomButton) {
+                if (index == 0){
+                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                }else if(index == 1){
+                    Toast.makeText(MainActivity.this, "click Logout"+index, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onBackgroundClick() {
+
+            }
+
+            @Override
+            public void onBoomWillHide() {
+
+            }
+
+            @Override
+            public void onBoomDidHide() {
+
+            }
+
+            @Override
+            public void onBoomWillShow() {
+
+            }
+
+            @Override
+            public void onBoomDidShow() {
+
+            }
+        });
+
         if ((new PreferenceManager(this).getUserID()).equals("")){
             startActivity(new Intent(this,LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
             finish(); //to end current activity
         }
 
+        // for creatting map
         setUpMap();
         fab_main = (FloatingActionButton)findViewById(R.id.fab_main);
         fab_gallery = (FloatingActionButton)findViewById(R.id.fab_gallery);
@@ -121,13 +214,13 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.fab_gallery:
                 checkPermissionUser("gallery");
                 checktype = "gallery";
+                animateFAB();
                 //startActivity(new Intent(this,UploadPostActivity.class));
                 break;
             case R.id.fab_camera:
                 checkPermissionUser("camera");
                 checktype = "camera";
-
-                Log.d("Raj", "Fab 2");
+                animateFAB();
                 break;
         }
     }
@@ -145,7 +238,6 @@ public class MainActivity extends AppCompatActivity implements
             Log.d("Raj", "close");
 
         } else {
-
             fab_main.startAnimation(rotate_forward);
             fab_gallery.startAnimation(fab_open);
             fab_camera.startAnimation(fab_open);
@@ -204,6 +296,31 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
             break;
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                        if (mGoogleApiClient == null) {
+                            buildGoogleApiClient();
+                        }
+                        mMap.setMyLocationEnabled(true);
+                    }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
 
         }
     }
@@ -237,7 +354,6 @@ public class MainActivity extends AppCompatActivity implements
     private void selectFromGallery() {
         Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(i, GALLERY_REQUEST);
-
     }
 
     @Override
@@ -283,12 +399,7 @@ public class MainActivity extends AppCompatActivity implements
             Log.e("GalleryURi  ","image uri"+mediaPath);
         }
     }
-    public Uri getImageUri(Context inContext, Bitmap inImage) {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
-        return Uri.parse(path);
-    }
+
     private String getRealPathFromURI(Uri contentURI) {
         String result;
         Cursor cursor = MainActivity.this.getContentResolver().query(contentURI, null, null, null, null);
@@ -343,6 +454,15 @@ public class MainActivity extends AppCompatActivity implements
      * Run the demo-specific code.
      */
 
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        //stop location updates when Activity is no longer active
+        if (mGoogleApiClient != null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+    }
     protected GoogleMap getMap() {
         return mMap;
     }
@@ -370,11 +490,181 @@ public class MainActivity extends AppCompatActivity implements
         } catch (Resources.NotFoundException e) {
             Log.e("Map", "Can't find style. Error: ", e);
         }*/
-
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                //Location Permission already granted
+                buildGoogleApiClient();
+                mMap.setMyLocationEnabled(true);
+            } else {
+                //Request Location Permission
+                checkLocationPermission();
+            }
+        }
+        else {
+            buildGoogleApiClient();
+            mMap.setMyLocationEnabled(true);
+        }
         startDemo();
         new backgroundoperation(mClusterManager,getMap()).execute();
     }
 
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        Address loactionAddress;
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+
+        try {
+            addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 2); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+            loactionAddress = addresses.get(0);
+            if(loactionAddress!=null)
+            {
+
+                String address = loactionAddress.getAddressLine(0);
+                String address1 = loactionAddress.getAddressLine(1);
+                String city = loactionAddress.getLocality();
+                String state = loactionAddress.getAdminArea();
+                String country = loactionAddress.getCountryName();
+                String postalCode = loactionAddress.getPostalCode();
+
+
+                String currentLocation;
+
+                if(!TextUtils.isEmpty(address))
+                {
+                    currentLocation=address;
+
+                    if (!TextUtils.isEmpty(address1))
+                        currentLocation+="\n"+address1;
+                    if (!TextUtils.isEmpty(city))
+                    {
+                        currentLocation+="\n"+city;
+                        if (!TextUtils.isEmpty(postalCode))
+                            currentLocation+=" - "+postalCode;
+                    }
+                    else
+                    {
+                        if (!TextUtils.isEmpty(postalCode))
+                            currentLocation+="\n"+postalCode;
+                    }
+
+                    if (!TextUtils.isEmpty(state))
+                    currentLocation+="\n"+state;
+
+                    if (!TextUtils.isEmpty(country))
+                        currentLocation+="\n"+country;
+                    Log.d("location",""+currentLocation);
+                    current_location = currentLocation;
+                    Toast.makeText(this, "location  "+currentLocation, Toast.LENGTH_SHORT).show();
+                }
+
+            }
+            else
+                Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //Toast.makeText(this, "address "+Address+"address1 "+Address1+"city "+City+"state "+State+"country "+Country+"postalCode "+PostalCode, Toast.LENGTH_SHORT).show();
+
+        //for set on marker on current location
+        mLastLocation = location;
+        if (mCurrLocationMarker != null) {
+            mCurrLocationMarker.remove();
+        }
+
+
+        //Place current location marker
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(latLng);
+        markerOptions.title(current_location);
+        Toast.makeText(this, "current "+current_location, Toast.LENGTH_SHORT).show();
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+        mCurrLocationMarker = mMap.addMarker(markerOptions);
+
+        //move map camera
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
+        
+        
+    }
+
+
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        mLocationRequest = new LocationRequest();
+        //mLocationRequest.setInterval(1000);
+        //mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,  this);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                new AlertDialog.Builder(this)
+                        .setTitle("Location Permission Needed")
+                        .setMessage("This app needs the Location permission, please accept to use location functionality")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Prompt the user once explanation has been shown
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        MY_PERMISSIONS_REQUEST_LOCATION );
+                            }
+                        })
+                        .create()
+                        .show();
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION );
+            }
+        }
+    }
 
 
     /**
@@ -534,8 +824,4 @@ public class MainActivity extends AppCompatActivity implements
         return BitmapFactory.decodeStream(url.openConnection().getInputStream());
     }
 
-   /* @OnClick(R.id.uploadPost)
-    public void fabView(){
-        startActivity(new Intent(this,PostActivity.class));
-    }*/
 }

@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">DynamicMapMarkers</string>
     <string name="google_maps_key">AIzaSyBZrMG4WH_UEyTm0eNLmn5YUYOaw0Jn9p4</string>
+
+    <string name="text_outside_circle_button_text_normal">Text Outside Circle Button(Normal)</string>
+    <string name="text_inside_circle_button_text_normal">Text Inside Circle Button(Normal)</string>
+    <string name="logout">    Logout</string>
+    <string name="profile">    Profile</string>
+
+    <string name="text_ham_button_sub_text_normal">Ham Button Sub Text(Normal)</string>
+    <string name="text_ham_button_text_normal">Ham Button Sub Text(Normal)</string>
+
 </resources>

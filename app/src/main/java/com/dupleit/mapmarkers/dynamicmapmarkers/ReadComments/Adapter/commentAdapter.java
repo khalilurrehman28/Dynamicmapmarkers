@@ -60,7 +60,6 @@ public class commentAdapter extends RecyclerView.Adapter<commentAdapter.GalleryV
         CommentData commentData = commentsList.get(position);
         holder.commentBy.setText(commentData.getUSERNAME());
         holder.commentText.setText(commentData.getCOMMENTTEXT());
-        DateConverter mydate = new DateConverter();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date past = null;
         try {

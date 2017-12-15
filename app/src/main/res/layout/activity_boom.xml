@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/transparent">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/UserProfileImage"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_centerVertical="true"
+        android:layout_margin="10dp"
+        android:background="@drawable/ic_account_circle_black_36dp" />
+
+    <TextView
+        android:id="@+id/title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:textAllCaps="false"
+        android:typeface="monospace"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#fff"
+        android:layout_toRightOf="@+id/UserProfileImage"
+        android:layout_toEndOf="@+id/UserProfileImage"
+        />
+
+    <com.nightonke.boommenu.BoomMenuButton
+        android:id="@+id/action_bar_right_bmb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:textStyle="bold"
+        app:bmb_backgroundEffect="false"
+        app:bmb_shareLine1Color="#fff"
+        app:bmb_boomEnum="boomParabola_2"/>
+
+</RelativeLayout>

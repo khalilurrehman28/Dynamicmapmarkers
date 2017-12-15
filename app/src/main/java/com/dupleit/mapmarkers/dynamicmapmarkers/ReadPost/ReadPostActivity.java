@@ -3,15 +3,19 @@ package com.dupleit.mapmarkers.dynamicmapmarkers.ReadPost;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.DateConverter;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.APIService;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.ApiClient;
 import com.dupleit.mapmarkers.dynamicmapmarkers.R;
@@ -44,11 +48,14 @@ public class ReadPostActivity extends AppCompatActivity {
     @BindView(R.id.uploadImageLocation) TextView uploadImageLocation;
     @BindView(R.id.uploadImageTime) TextView uploadImageTime;
     @BindView(R.id.play_list_cover) ImageView play_list_cover;
-    @BindView(R.id.imageDescription) TextView imageDescription;
+    @BindView(R.id.imageDescription) TextView postDescription;
     @BindView(R.id.Likes) TextView Likes;
     @BindView(R.id.comments) TextView comments;
     @BindView(R.id.ListerImage) CircleImageView ListerImage;
     @BindView(R.id.layoutLike) LinearLayout layoutLike;
+    @BindView(R.id.card_view) CardView cardView;
+    @BindView(R.id.progressBar) ProgressBar progressBar;
+
 
     private FirebaseDatabase database;
     private DatabaseReference mFirebaseReference;
@@ -56,6 +63,12 @@ public class ReadPostActivity extends AppCompatActivity {
     @OnClick(R.id.layoutComment)
     public void showComments(){
         startActivity(new Intent(this, ReadComments.class).putExtra("PostID",getIntent().getStringExtra("PostID")));
+    }
+
+    @OnClick(R.id.comments)
+    public void readComments(){
+        startActivity(new Intent(this, ReadComments.class).putExtra("PostID",getIntent().getStringExtra("PostID")));
+
     }
     @OnClick(R.id.layoutLike)
     public void likePost(){
@@ -68,6 +81,8 @@ public class ReadPostActivity extends AppCompatActivity {
         setContentView(R.layout.post_show);
         ButterKnife.bind(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        progressBar.setVisibility(View.VISIBLE);
+        cardView.setVisibility(View.GONE);
         database = FirebaseDatabase.getInstance();
         mFirebaseReference = database.getReference().child("post");
         //Toast.makeText(this, ""+getIntent().getStringExtra("PostID"), Toast.LENGTH_SHORT).show();
@@ -77,35 +92,8 @@ public class ReadPostActivity extends AppCompatActivity {
     }
 
     private void getcommentCount(String postID) {
-        Toast.makeText(this, ""+postID, Toast.LENGTH_SHORT).show();
-       /* mFirebaseReference.child(postID).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                //Log.d("commentData",""+dataSnapshot.getChildrenCount());
-                //commentMessageObject comment = dataSnapshot.getValue(commentMessageObject.class);
-                comments.setText(dataSnapshot.getChildrenCount()+" Comments");
-            }
+        //Toast.makeText(this, ""+postID, Toast.LENGTH_SHORT).show();
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });*/
 
         mFirebaseReference.child(postID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -130,14 +118,23 @@ public class ReadPostActivity extends AppCompatActivity {
         userCall.enqueue(new Callback<UserPost>() {
             @Override
             public void onResponse(Call<UserPost> call, retrofit2.Response<UserPost> response) {
+                progressBar.setVisibility(View.GONE);
+                cardView.setVisibility(View.VISIBLE);
                 if (response.isSuccessful() && response.body().getStatus()){
                     //Toast.makeText(ReadPostActivity.this, ""+response.body().getStatus(), Toast.LENGTH_SHORT).show();
                     List<PostDatum> postData = response.body().getPostData();
                     //Toast.makeText(ReadPostActivity.this, ""+postData.size(), Toast.LENGTH_SHORT).show();
                     for (PostDatum post : postData) {
                         userName.setText(post.getUSERNAME());
-                        uploadImageTime.setText(post.getPOSTDATETIME());
-                        imageDescription.setText(post.getPOSTDESCRIPTION());
+                        uploadImageTime.setText("posted on "+(new DateConverter().convertDate(post.getPOSTDATETIME())));
+                        String des =post.getPOSTDESCRIPTION();
+                        if (des.equals("")){
+                            postDescription.setText("");
+                            postDescription.setVisibility(View.GONE);
+                        }else {
+                            postDescription.setText(des.substring(1,des.length() -1)); //replace is use to replace ("")
+
+                        }
 
                         Glide
                              .with(getApplicationContext())

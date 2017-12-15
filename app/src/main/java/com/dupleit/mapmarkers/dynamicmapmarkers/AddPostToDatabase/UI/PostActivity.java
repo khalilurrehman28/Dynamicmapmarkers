@@ -8,6 +8,8 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
@@ -19,6 +21,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -35,10 +38,15 @@ import com.dupleit.mapmarkers.dynamicmapmarkers.Network.ApiClient;
 import com.dupleit.mapmarkers.dynamicmapmarkers.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.MultipartBody;
@@ -48,7 +56,9 @@ import retrofit2.Response;
 
 import static android.graphics.BitmapFactory.decodeFile;
 
-public class PostActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener, ProgressRequestBody.UploadCallbacks{
+public class PostActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener,
+        ProgressRequestBody.UploadCallbacks{
 
     private static final int REQUEST= 112;
     private final static int MY_PERMISSION_FINE_LOCATION = 101;
@@ -68,6 +78,7 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
     String mediaPath;
     double latitude,longitude;
     ProgressDialog pDialog;
+    String Address,Address1,City,State,Country,PostalCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,10 +127,15 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
             @Override
             public void onClick(View view) {
                 if (validate()){
+                    String post_des = postDescription.getText().toString();
+
                     if (latitude != 0.0 && longitude!= 0.0){
-                        uploadYourPost(mediaPath,postDescription.getText().toString());
+                        Log.e("getLocation","address "+Address+"address1 "+Address1+"city "+City+"state "+State+"country "+Country+"postalCode "+PostalCode);
+                         uploadYourPost(mediaPath,post_des);
+
+                    }else {
+                        Toast.makeText(PostActivity.this, "We don't find your location", Toast.LENGTH_SHORT).show();
                     }
-                    //Toast.makeText(PostActivity.this, ""+latitude+"   "+longitude, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -266,7 +282,7 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
 
         mLocationRequest = LocationRequest.create();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(10); // Update location every second
+       // mLocationRequest.setInterval(10); // Update location every second
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -290,6 +306,70 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
 
     @Override
     public void onLocationChanged(Location location) {
+        Address loactionAddress;
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+
+        try {
+            addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+            loactionAddress = addresses.get(0);
+            if(loactionAddress!=null)
+            {
+
+                String address = loactionAddress.getAddressLine(0);
+                String address1 = loactionAddress.getAddressLine(1);
+                String city = loactionAddress.getLocality();
+                String state = loactionAddress.getAdminArea();
+                String country = loactionAddress.getCountryName();
+                String postalCode = loactionAddress.getPostalCode();
+
+
+                String currentLocation;
+
+                if(!TextUtils.isEmpty(address))
+                {
+                    currentLocation=address;
+                    Address=address;
+
+                    if (!TextUtils.isEmpty(address1))
+                        currentLocation+="\n"+address1;
+                    Address1 =address1;
+
+                    if (!TextUtils.isEmpty(city))
+                    {
+                        currentLocation+="\n"+city;
+                        City = city;
+                        if (!TextUtils.isEmpty(postalCode))
+                            currentLocation+=" - "+postalCode;
+                        PostalCode = postalCode;
+                    }
+                    else
+                    {
+                        if (!TextUtils.isEmpty(postalCode))
+                            currentLocation+="\n"+postalCode;
+                    }
+
+                    if (!TextUtils.isEmpty(state))
+                        State =state;
+                        currentLocation+="\n"+state;
+
+                    if (!TextUtils.isEmpty(country))
+                        currentLocation+="\n"+country;
+                        Country = country;
+                    Log.d("location",""+currentLocation);
+
+                    Toast.makeText(this, "location  "+currentLocation, Toast.LENGTH_SHORT).show();
+                }
+
+            }
+            else
+                Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         if (mLocationRequest!=null){
             //txtOutput.setText(location.toString());

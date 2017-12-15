@@ -12,11 +12,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    @BindView(R.id.UserProfileImage)
+    /*@BindView(R.id.UserProfileImage)
     CircleImageView UserProfileImage;
 
     @BindView(R.id.userEmail)
-    EditText email;
+    EditText email;*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
