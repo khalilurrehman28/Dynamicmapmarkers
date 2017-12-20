@@ -1,8 +1,9 @@
-package com.dupleit.mapmarkers.dynamicmapmarkers;
+package com.dupleit.mapmarkers.dynamicmapmarkers.Constant;
 
 import android.graphics.Color;
 import android.util.Pair;
 
+import com.dupleit.mapmarkers.dynamicmapmarkers.R;
 import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
 import com.nightonke.boommenu.BoomButtons.HamButton;
 import com.nightonke.boommenu.BoomButtons.SimpleCircleButton;
@@ -92,7 +93,7 @@ public class BuilderManager {
                 .pieceColor(Color.WHITE);
     }
 
-    static HamButton.Builder getHamButtonBuilder(Integer message) {
+    public static HamButton.Builder getHamButtonBuilder(Integer message) {
         return new HamButton.Builder()
                 .normalImageRes(getImageResource())
                 .buttonCornerRadius(Util.dp2px(10))

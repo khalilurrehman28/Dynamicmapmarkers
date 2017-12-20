@@ -67,7 +67,6 @@
                 android:resource="@xml/filepaths"/>
         </provider>
         -->
-        <activity android:name=".Boom"></activity>
     </application>
 
 </manifest>

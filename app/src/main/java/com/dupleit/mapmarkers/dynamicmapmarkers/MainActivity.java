@@ -21,7 +21,6 @@ import android.os.Parcelable;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -42,6 +41,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.UI.PostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.BuilderManager;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.PreferenceManager;
 import com.dupleit.mapmarkers.dynamicmapmarkers.GridUIPost.gridUiActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Login.LoginActivity;
@@ -76,7 +76,6 @@ import com.nightonke.boommenu.ButtonEnum;
 import com.nightonke.boommenu.OnBoomListener;
 import com.nightonke.boommenu.Piece.PiecePlaceEnum;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -113,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements
     private Animation fab_open,fab_close,rotate_forward,rotate_backward;
     String checktype=null;
     String current_location;
+    String address,address1,city,state,country,postalCode,currentLocation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -535,15 +536,14 @@ public class MainActivity extends AppCompatActivity implements
             if(loactionAddress!=null)
             {
 
-                String address = loactionAddress.getAddressLine(0);
-                String address1 = loactionAddress.getAddressLine(1);
-                String city = loactionAddress.getLocality();
-                String state = loactionAddress.getAdminArea();
-                String country = loactionAddress.getCountryName();
-                String postalCode = loactionAddress.getPostalCode();
+                address = loactionAddress.getAddressLine(0);
+                address1 = loactionAddress.getAddressLine(1);
+                city = loactionAddress.getLocality();
+                state = loactionAddress.getAdminArea();
+                country = loactionAddress.getCountryName();
+                postalCode = loactionAddress.getPostalCode();
 
 
-                String currentLocation;
 
                 if(!TextUtils.isEmpty(address))
                 {
@@ -570,7 +570,7 @@ public class MainActivity extends AppCompatActivity implements
                         currentLocation+="\n"+country;
                     Log.d("location",""+currentLocation);
                     current_location = currentLocation;
-                    Toast.makeText(this, "location  "+currentLocation, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this, "location  "+currentLocation, Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -594,10 +594,17 @@ public class MainActivity extends AppCompatActivity implements
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title(current_location);
-        Toast.makeText(this, "current "+current_location, Toast.LENGTH_SHORT).show();
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
-        mCurrLocationMarker = mMap.addMarker(markerOptions);
+        Log.e("address"," Address "+address1+" , "+city+" state "+state+" country "+country);
+        //Toast.makeText(this, "current "+current_location, Toast.LENGTH_SHORT).show();
 
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+
+        CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(this);
+        mMap.setInfoWindowAdapter(customInfoWindow);
+
+        mCurrLocationMarker = mMap.addMarker(markerOptions);
+        //mCurrLocationMarker.setTag(info);
+       // mCurrLocationMarker.showInfoWindow();
         //move map camera
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,11));
         
@@ -736,7 +743,7 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         protected boolean shouldRenderAsCluster(Cluster cluster) {
             // Always render clusters.
-            return cluster.getSize() >= 3;
+            return cluster.getSize() >= 4;
         }
     }
 
@@ -746,8 +753,8 @@ public class MainActivity extends AppCompatActivity implements
         // inside of bounds, then animate to center of the bounds.
         // Create the builder to collect all essential cluster items for the bounds.
         //Log.d("Zoom",""+mMap.getCameraPosition().zoom);
-        List<LatLng> userLatLang = new ArrayList<>();
         if (mMap.getCameraPosition().zoom >=15.0 && mMap.getCameraPosition().zoom<=21.0){
+            List<LatLng> userLatLang = new ArrayList<>();
             for (ClusterItem item : cluster.getItems()) {
                 Log.d("User",""+item.getTitle());
                 userLatLang.add(item.getPosition());
@@ -763,11 +770,11 @@ public class MainActivity extends AppCompatActivity implements
                 builder.include(item.getPosition());
             }
             // Get the LatLngBounds
-            LatLngBounds bounds = builder.build();
+           final LatLngBounds bounds = builder.build();
             // Animate camera to the bounds
             //bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
             try {
-                getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 7));
+                getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
                 //getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -815,13 +822,13 @@ public class MainActivity extends AppCompatActivity implements
         mClusterManager.setOnClusterItemInfoWindowClickListener(this);
         mClusterManager.clearItems();
         mClusterManager.cluster();
-        getMap().setOnCameraIdleListener(mClusterManager);
+        //getMap().setOnCameraIdleListener(mClusterManager);
 
     }
 
     private Bitmap convertUrlToDrawable(String urlResource) throws IOException {
         URL url = new URL(Appconstant.weburl+urlResource);
-        return BitmapFactory.decodeStream(url.openConnection().getInputStream());
+        return Bitmap.createScaledBitmap(BitmapFactory.decodeStream(url.openConnection().getInputStream()),40,40,true);
     }
 
 }
