@@ -191,9 +191,9 @@ public class MainActivity extends AppCompatActivity implements
 
         // for creatting map
         setUpMap();
-        fab_main = (FloatingActionButton)findViewById(R.id.fab_main);
-        fab_gallery = (FloatingActionButton)findViewById(R.id.fab_gallery);
-        fab_camera = (FloatingActionButton)findViewById(R.id.fab_camera);
+        fab_main = findViewById(R.id.fab_main);
+        fab_gallery = findViewById(R.id.fab_gallery);
+        fab_camera = findViewById(R.id.fab_camera);
         fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
         fab_close = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.fab_close);
         rotate_forward = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.rotate_forward);
@@ -299,15 +299,10 @@ public class MainActivity extends AppCompatActivity implements
             break;
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
-                    if (ContextCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-
+                    if (ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED) {
                         if (mGoogleApiClient == null) {
                             buildGoogleApiClient();
                         }
@@ -315,7 +310,6 @@ public class MainActivity extends AppCompatActivity implements
                     }
 
                 } else {
-
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
@@ -508,7 +502,8 @@ public class MainActivity extends AppCompatActivity implements
             mMap.setMyLocationEnabled(true);
         }
         startDemo();
-        new backgroundoperation(mClusterManager,getMap()).execute();
+        new backgroundoperation(mClusterManager,getMap(),getApplicationContext()).execute();
+
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -799,7 +794,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public boolean onClusterItemClick(Datum item) {
         // Does nothing, but you could go into the user's profile page, for example.
-        Toast.makeText(this, ""+item.getUSERNAME(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, ""+item.getUSERNAME(), Toast.LENGTH_SHORT).show();
         startActivity(new Intent(this, ReadPostActivity.class).putExtra("PostID",item.getPOSTID()));
         return false;
     }
@@ -820,8 +815,7 @@ public class MainActivity extends AppCompatActivity implements
         mClusterManager.setOnClusterInfoWindowClickListener(this);
         mClusterManager.setOnClusterItemClickListener(this);
         mClusterManager.setOnClusterItemInfoWindowClickListener(this);
-        mClusterManager.clearItems();
-        mClusterManager.cluster();
+      //  mClusterManager.clearItems();
         //getMap().setOnCameraIdleListener(mClusterManager);
 
     }
