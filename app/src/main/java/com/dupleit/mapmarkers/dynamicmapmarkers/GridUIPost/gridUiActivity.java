@@ -43,7 +43,6 @@ public class gridUiActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grid_ui);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         initilize();
 
         //setTitle("");
@@ -62,7 +61,7 @@ public class gridUiActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_view);
         RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(getApplicationContext(), 2);
         recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(10), true));
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(3), true));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(adapter);
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(gridUiActivity.this, recyclerView, new RecyclerTouchListener.ClickListener() {
@@ -86,7 +85,6 @@ public class gridUiActivity extends AppCompatActivity {
     private void hitApi(ArrayList<LatLng> userlatlangs) {
         if (!checkInternetState.getInstance(gridUiActivity.this).isOnline()) {
             Toast.makeText(this, "Please check your internet connection.", Toast.LENGTH_SHORT).show();
-
         }else {
             APIService service = ApiClient.getClient().create(APIService.class);
             Call<UsersMapsMarkers> userCall = service.getpostonlatlang_request(userlatlangs);
