@@ -40,6 +40,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 import com.dupleit.mapmarkers.dynamicmapmarkers.AddPostToDatabase.UI.PostActivity;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.BuilderManager;
@@ -84,6 +86,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 
 public class MainActivity extends AppCompatActivity implements
         OnMapReadyCallback,
@@ -114,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements
     String checktype=null;
     String current_location;
     String address,address1,city,state,country,postalCode,currentLocation;
+    CircleImageView userImage;
 
 
     @Override
@@ -129,6 +134,9 @@ public class MainActivity extends AppCompatActivity implements
             finish(); //to end current activity
         }
         // for boom menu option on action bar
+
+
+
         ActionBar mActionBar = getSupportActionBar();
         assert mActionBar != null;
         mActionBar.setDisplayShowHomeEnabled(false);
@@ -140,7 +148,13 @@ public class MainActivity extends AppCompatActivity implements
         mActionBar.setCustomView(actionBar);
         mActionBar.setDisplayShowCustomEnabled(true);
         ((Toolbar) actionBar.getParent()).setContentInsetsAbsolute(0,0);
-
+        userImage =findViewById(R.id.UserProfileImage);
+        String sharedUserImage = Appconstant.weburl+(new PreferenceManager(this).getUserImage());
+        if (!sharedUserImage.equals("")){
+            Glide.with(this).load(sharedUserImage).into(userImage);
+        }else {
+            Glide.with(this).load(R.drawable.ic_account_circle_black_36dp).into(userImage);
+        }
         BoomMenuButton rightBmb = (BoomMenuButton) actionBar.findViewById(R.id.action_bar_right_bmb);
         rightBmb.setButtonEnum(ButtonEnum.Ham);
         rightBmb.setPiecePlaceEnum(PiecePlaceEnum.HAM_2);
