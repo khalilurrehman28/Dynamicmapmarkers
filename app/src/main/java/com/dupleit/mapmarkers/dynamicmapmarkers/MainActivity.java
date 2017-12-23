@@ -540,8 +540,6 @@ public class MainActivity extends AppCompatActivity implements
                 country = loactionAddress.getCountryName();
                 postalCode = loactionAddress.getPostalCode();
 
-
-
                 if(!TextUtils.isEmpty(address))
                 {
                     currentLocation=address;

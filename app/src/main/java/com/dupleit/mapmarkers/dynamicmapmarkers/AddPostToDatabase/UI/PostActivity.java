@@ -131,7 +131,7 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
 
                     if (latitude != 0.0 && longitude!= 0.0){
                         Log.e("getLocation","address "+Address+"address1 "+Address1+"city "+City+"state "+State+"country "+Country+"postalCode "+PostalCode);
-                         uploadYourPost(mediaPath,post_des);
+                        uploadYourPost(mediaPath,post_des);
 
                     }else {
                         Toast.makeText(PostActivity.this, "We don't find your location", Toast.LENGTH_SHORT).show();
@@ -227,7 +227,7 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
             Toast.makeText(PostActivity.this, "Please check your internet connection.", Toast.LENGTH_SHORT).show();
         }else {
             APIService service = ApiClient.getClient().create(APIService.class);
-            Call<UploadImageResponse> call = service.upload_post_request(fileToUpload,Integer.parseInt((new PreferenceManager(PostActivity.this).getUserID())),postDescription,latitude,longitude);
+            Call<UploadImageResponse> call = service.upload_post_request(fileToUpload,Integer.parseInt((new PreferenceManager(PostActivity.this).getUserID())),postDescription,latitude,longitude,Address,PostalCode,City);
             call.enqueue(new Callback<UploadImageResponse>() {
                 @Override
                 public void onResponse(Call<UploadImageResponse> call, Response<UploadImageResponse> response) {

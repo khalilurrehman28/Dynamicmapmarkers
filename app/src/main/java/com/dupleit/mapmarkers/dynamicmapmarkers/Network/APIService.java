@@ -33,7 +33,7 @@ public interface APIService {
     Call<UploadImageResponse> upload_post_request(
              @Part MultipartBody.Part file, @Part("USER_ID") int USER_ID,
              @Part("POST_DESCRIPTION") String POST_DESCRIPTION, @Part("POST_LATITUDE") double POST_LATITUDE,
-             @Part("POST_LONGITUDE") double POST_LONGITUDE);
+             @Part("POST_LONGITUDE") double POST_LONGITUDE,@Part("POST_ADDRESS") String address,@Part("POST_POSTALCODE") String POST_POSTALCODE,@Part("POST_LOCALITY") String POST_LOCALITY);
 
     @FormUrlEncoded
     @POST("getpostcomment_request")
