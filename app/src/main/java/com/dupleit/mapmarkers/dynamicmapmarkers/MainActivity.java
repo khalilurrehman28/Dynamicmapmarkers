@@ -17,6 +17,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.os.StrictMode;
 import android.provider.MediaStore;
@@ -504,7 +505,14 @@ public class MainActivity extends AppCompatActivity implements
             mMap.setMyLocationEnabled(true);
         }
         startDemo();
-        new backgroundoperation(mClusterManager,getMap(),getApplicationContext()).execute();
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                new backgroundoperation(mClusterManager,getMap(),getApplicationContext()).execute();
+            }
+        }, 2000);
 
     }
 
@@ -817,7 +825,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private Bitmap convertUrlToDrawable(String urlResource) throws IOException {
         URL url = new URL(Appconstant.weburl+urlResource);
-        return Bitmap.createScaledBitmap(BitmapFactory.decodeStream(url.openConnection().getInputStream()),40,40,true);
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inSampleSize = 2;
+        return Bitmap.createScaledBitmap(BitmapFactory.decodeStream(url.openConnection().getInputStream(),null,o),40,40,true);
     }
 
 }
