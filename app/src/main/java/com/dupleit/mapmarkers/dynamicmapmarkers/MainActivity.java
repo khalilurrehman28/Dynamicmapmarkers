@@ -123,7 +123,10 @@ public class MainActivity extends AppCompatActivity implements
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
         setContentView(R.layout.activity_main);
-
+        if ((new PreferenceManager(this).getUserID()).equals("")){
+            startActivity(new Intent(this,LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+            finish(); //to end current activity
+        }
         // for boom menu option on action bar
         ActionBar mActionBar = getSupportActionBar();
         assert mActionBar != null;
@@ -154,7 +157,9 @@ public class MainActivity extends AppCompatActivity implements
                 if (index == 0){
                     startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
                 }else if(index == 1){
-                    Toast.makeText(MainActivity.this, "click Logout"+index, Toast.LENGTH_SHORT).show();
+                    new PreferenceManager(getApplicationContext()).saveUserDetails("","","","","");
+                    startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                    finish();
                 }
             }
 
@@ -184,10 +189,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
 
-        if ((new PreferenceManager(this).getUserID()).equals("")){
-            startActivity(new Intent(this,LoginActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
-            finish(); //to end current activity
-        }
+
 
         // for creatting map
         setUpMap();
@@ -635,11 +637,8 @@ public class MainActivity extends AppCompatActivity implements
     private void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-
             // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
@@ -657,8 +656,6 @@ public class MainActivity extends AppCompatActivity implements
                         })
                         .create()
                         .show();
-
-
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
@@ -815,7 +812,7 @@ public class MainActivity extends AppCompatActivity implements
         mClusterManager.setOnClusterInfoWindowClickListener(this);
         mClusterManager.setOnClusterItemClickListener(this);
         mClusterManager.setOnClusterItemInfoWindowClickListener(this);
-      //  mClusterManager.clearItems();
+        //mClusterManager.clearItems();
         //getMap().setOnCameraIdleListener(mClusterManager);
 
     }

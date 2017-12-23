@@ -54,4 +54,7 @@ public interface APIService {
     @POST("registeruser_request")
     Call<UserLogin> registeruser_request(@Field("email") String email,@Field("password") String password,@Field("username") String username,@Field("mobile") String mobile);
 
+    @FormUrlEncoded
+    @POST("updateuserprofile_request")
+    Call<CommentResponse> updateuserprofile_request(@Field("username") String username,@Field("mobile") String mobile,@Field("user_id") int user_id);
 }
