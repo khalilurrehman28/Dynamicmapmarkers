@@ -33,6 +33,18 @@ public class PostDatum {
     @SerializedName("POST_DATETIME")
     @Expose
     private String pOSTDATETIME;
+    @SerializedName("POST_ADDRESS")
+    @Expose
+    private String pOSTADDRESS;
+    @SerializedName("POST_POSTALCODE")
+    @Expose
+    private String pOSTPOSTALCODE;
+    @SerializedName("POST_LOCALITY")
+    @Expose
+    private String pOSTLOCALITY;
+    @SerializedName("POST_THUMBNAIL")
+    @Expose
+    private String pOSTTHUMBNAIL;
     @SerializedName("USER_ID")
     @Expose
     private String uSERID;
@@ -133,6 +145,38 @@ public class PostDatum {
         this.pOSTDATETIME = pOSTDATETIME;
     }
 
+    public String getPOSTADDRESS() {
+        return pOSTADDRESS;
+    }
+
+    public void setPOSTADDRESS(String pOSTADDRESS) {
+        this.pOSTADDRESS = pOSTADDRESS;
+    }
+
+    public String getPOSTPOSTALCODE() {
+        return pOSTPOSTALCODE;
+    }
+
+    public void setPOSTPOSTALCODE(String pOSTPOSTALCODE) {
+        this.pOSTPOSTALCODE = pOSTPOSTALCODE;
+    }
+
+    public String getPOSTLOCALITY() {
+        return pOSTLOCALITY;
+    }
+
+    public void setPOSTLOCALITY(String pOSTLOCALITY) {
+        this.pOSTLOCALITY = pOSTLOCALITY;
+    }
+
+    public String getPOSTTHUMBNAIL() {
+        return pOSTTHUMBNAIL;
+    }
+
+    public void setPOSTTHUMBNAIL(String pOSTTHUMBNAIL) {
+        this.pOSTTHUMBNAIL = pOSTTHUMBNAIL;
+    }
+
     public String getUSERID() {
         return uSERID;
     }
@@ -204,5 +248,4 @@ public class PostDatum {
     public void setUSERACTIVE(String uSERACTIVE) {
         this.uSERACTIVE = uSERACTIVE;
     }
-
 }

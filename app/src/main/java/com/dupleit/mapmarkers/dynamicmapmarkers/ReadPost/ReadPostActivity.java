@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.DateConverter;
+import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.TimeConverter;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.APIService;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Network.ApiClient;
 import com.dupleit.mapmarkers.dynamicmapmarkers.R;
@@ -127,7 +128,7 @@ public class ReadPostActivity extends AppCompatActivity {
                     //Toast.makeText(ReadPostActivity.this, ""+postData.size(), Toast.LENGTH_SHORT).show();
                     for (PostDatum post : postData) {
                         userName.setText(post.getUSERNAME());
-                        uploadImageTime.setText("posted on "+(new DateConverter().convertDate(post.getPOSTDATETIME())));
+                        uploadImageTime.setText((new DateConverter().convertDate(post.getPOSTDATETIME())+" at "+(new TimeConverter().convertTime(post.getPOSTDATETIME())))+" ("+post.getPOSTLOCALITY()+")");
                         String des =post.getPOSTDESCRIPTION();
                         if (des.equals("")){
                             postDescription.setText("");

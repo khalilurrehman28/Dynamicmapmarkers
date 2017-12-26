@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.dupleit.mapmarkers.dynamicmapmarkers.Constant.Appconstant;
@@ -26,14 +27,15 @@ public class personAdapter extends RecyclerView.Adapter<personAdapter.MyViewHold
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
 
-        public ImageView personImage;
         public CardView cardView;
-
+        public ImageView personImage;
+public TextView personName;
         public MyViewHolder(View view) {
             super(view);
-            personImage = (ImageView) view.findViewById(R.id.person_image);
+            cardView = itemView.findViewById(R.id.card_view);
+            personImage = view.findViewById(R.id.person_image);
+            personName= view.findViewById(R.id.person_name);
 
-            cardView = (CardView) itemView.findViewById(R.id.card_view);
 
         }
     }
@@ -54,7 +56,9 @@ public class personAdapter extends RecyclerView.Adapter<personAdapter.MyViewHold
     public void onBindViewHolder(final MyViewHolder holder, int position) {
         final Datum person = albumList.get(position);
         Glide.with(mContext).load(Appconstant.weburl+person.getPOSTIMAGEURL()).into(holder.personImage);
-
+        if (!person.getUSERNAME().equals("")){
+            holder.personName.setText(person.getUSERNAME());
+        }
     }
 
     @Override

@@ -557,7 +557,6 @@ public class MainActivity extends AppCompatActivity implements
 
                 address = loactionAddress.getAddressLine(0);
                 address1 = loactionAddress.getAddressLine(1);
-                Toast.makeText(this, "add "+address, Toast.LENGTH_SHORT).show();
                 city = loactionAddress.getLocality();
                 state = loactionAddress.getAdminArea();
                 country = loactionAddress.getCountryName();
@@ -588,7 +587,7 @@ public class MainActivity extends AppCompatActivity implements
                         currentLocation+="\n"+country;*/
                     Log.d("location",""+currentLocation);
                     current_location = currentLocation;
-                    Toast.makeText(this, "location  "+address1, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this, "location  "+address1, Toast.LENGTH_SHORT).show();
                 }
 
             }
@@ -730,13 +729,13 @@ public class MainActivity extends AppCompatActivity implements
         protected void onBeforeClusterRendered(Cluster<Datum> cluster, MarkerOptions markerOptions) {
             // Draw multiple people.
             // Note: this method runs on the UI thread. Don't spend too much time in here (like in this example).
-            List<Drawable> profilePhotos = new ArrayList<>(Math.min(4, cluster.getSize()));
+            List<Drawable> profilePhotos = new ArrayList<>(Math.min(2, cluster.getSize()));
             int width = mDimension;
             int height = mDimension;
 
             for (Datum p : cluster.getItems()) {
                 // Draw 4 at most.
-                if (profilePhotos.size() == 2) break;
+                if (profilePhotos.size() == 4) break;
                 Drawable drawable = null;
                 try {
                     drawable = new BitmapDrawable(getResources(),convertUrlToDrawable(p.getUSERIMAGE()));
