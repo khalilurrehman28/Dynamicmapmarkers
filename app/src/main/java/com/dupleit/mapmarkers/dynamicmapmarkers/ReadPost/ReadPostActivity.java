@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,7 +54,7 @@ public class ReadPostActivity extends AppCompatActivity {
     @BindView(R.id.comments) TextView comments;
     @BindView(R.id.ListerImage) CircleImageView ListerImage;
     @BindView(R.id.layoutLike) LinearLayout layoutLike;
-    @BindView(R.id.card_view) CardView cardView;
+    @BindView(R.id.ParentLayout) RelativeLayout ParentLayout;
     @BindView(R.id.progressBar) ProgressBar progressBar;
 
 
@@ -82,7 +83,7 @@ public class ReadPostActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         progressBar.setVisibility(View.VISIBLE);
-        cardView.setVisibility(View.GONE);
+        ParentLayout.setVisibility(View.GONE);
         database = FirebaseDatabase.getInstance();
         mFirebaseReference = database.getReference().child("post");
         //Toast.makeText(this, ""+getIntent().getStringExtra("PostID"), Toast.LENGTH_SHORT).show();
@@ -119,7 +120,7 @@ public class ReadPostActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<UserPost> call, retrofit2.Response<UserPost> response) {
                 progressBar.setVisibility(View.GONE);
-                cardView.setVisibility(View.VISIBLE);
+                ParentLayout.setVisibility(View.VISIBLE);
                 if (response.isSuccessful() && response.body().getStatus()){
                     //Toast.makeText(ReadPostActivity.this, ""+response.body().getStatus(), Toast.LENGTH_SHORT).show();
                     List<PostDatum> postData = response.body().getPostData();
@@ -130,9 +131,9 @@ public class ReadPostActivity extends AppCompatActivity {
                         String des =post.getPOSTDESCRIPTION();
                         if (des.equals("")){
                             postDescription.setText("");
-                            postDescription.setVisibility(View.GONE);
                         }else {
                             postDescription.setText(des.substring(1,des.length() -1)); //replace is use to replace ("")
+                            postDescription.setVisibility(View.VISIBLE);
 
                         }
 

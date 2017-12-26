@@ -39,7 +39,7 @@ public class backgroundoperation extends AsyncTask<Void, TempObject, String> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        Toast.makeText(ctx, "Loading User Data", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(ctx, "Loading User Data", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -72,7 +72,11 @@ public class backgroundoperation extends AsyncTask<Void, TempObject, String> {
 
         for (Datum quizShow : objUser) {
             LatLng latLng = new LatLng(Double.parseDouble(quizShow.getPOSTLATITUDE()),Double.parseDouble(quizShow.getPOSTLONGITUDE()));
-            mClusterManager.addItem(new Datum(quizShow.getPOSTID(),quizShow.getUSERID(),quizShow.getPOSTIMAGEURL(),quizShow.getPOSTDESCRIPTION(),quizShow.getPOSTBLOCK(),quizShow.getPOSTDELETE(),quizShow.getPOSTDATETIME(),quizShow.getUSERID(),quizShow.getUSERNAME(),quizShow.getUSERTYPE(),quizShow.getUSERIMAGE(),quizShow.getUSERMOBILE(),quizShow.getUSERALTNUMBER(),quizShow.getUSEREMAIL(),quizShow.getUSERPASSWORD(),quizShow.getUSERACTIVE(),latLng));
+
+            String[] imageUrl = quizShow.getPOSTIMAGEURL().split("/");
+            String newImageUrl = imageUrl[0]+"/"+imageUrl[1]+"/"+imageUrl[2]+"/thumbnail_medium/"+imageUrl[3];
+
+            mClusterManager.addItem(new Datum(quizShow.getPOSTID(),quizShow.getUSERID(),newImageUrl,quizShow.getPOSTDESCRIPTION(),quizShow.getPOSTBLOCK(),quizShow.getPOSTDELETE(),quizShow.getPOSTDATETIME(),quizShow.getUSERID(),quizShow.getUSERNAME(),quizShow.getUSERTYPE(),quizShow.getUSERIMAGE(),quizShow.getUSERMOBILE(),quizShow.getUSERALTNUMBER(),quizShow.getUSEREMAIL(),quizShow.getUSERPASSWORD(),quizShow.getUSERACTIVE(),latLng));
         }
 
         mClusterManager.cluster();

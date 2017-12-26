@@ -114,23 +114,32 @@ public class Signup extends AppCompatActivity {
     }
 
     private boolean validateData() {
-        if (etUserName.getText().toString().equals("") || (etUserName.getText().toString().split(" ").length>1)){
+        if (etUserName.getText().toString().equals("")){
             etUserName.setError("Enter full name");
             return false;
         }
 
-        if (etMobile.getText().toString().equals("") || (etMobile.getText().length()!=10)){
-            etMobile.setError("enter 10 digit mobile no");
+        if (etMobile.getText().toString().equals("")){
+            etMobile.setError("enter mobile no");
             return false;
+        }else if(etMobile.getText().length()!=10){
+            etMobile.setError("enter 10 digit mobile no");
+
         }
 
-        if (etEmail.getText().toString().equals("") || !isEmailValid((etEmail.getText().toString()))){
+        if (etEmail.getText().toString().equals("") ){
             etEmail.setError("Enter Email");
             return false;
+        }else if (!isEmailValid(etEmail.getText().toString())){
+            etEmail.setError("Email is not valid");
+            return false;
         }
 
-        if (etPassword.getText().toString().equals("") || etPassword.getText().length()<6){
+        if (etPassword.getText().toString().equals("")){
             etPassword.setError("Enter Password");
+            return false;
+        }else if (etPassword.getText().length()<6){
+            etPassword.setError("Enter Strong Password");
             return false;
         }
 

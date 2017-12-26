@@ -729,7 +729,7 @@ public class MainActivity extends AppCompatActivity implements
         protected void onBeforeClusterRendered(Cluster<Datum> cluster, MarkerOptions markerOptions) {
             // Draw multiple people.
             // Note: this method runs on the UI thread. Don't spend too much time in here (like in this example).
-            List<Drawable> profilePhotos = new ArrayList<>(Math.min(1, cluster.getSize()));
+            List<Drawable> profilePhotos = new ArrayList<>(Math.min(4, cluster.getSize()));
             int width = mDimension;
             int height = mDimension;
 
@@ -755,7 +755,7 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         protected boolean shouldRenderAsCluster(Cluster cluster) {
             // Always render clusters.
-            return cluster.getSize() >= 4;
+            return cluster.getSize() > 1;
         }
     }
 
@@ -787,7 +787,6 @@ public class MainActivity extends AppCompatActivity implements
             //bounds = mMap.getProjection().getVisibleRegion().latLngBounds;
             try {
                 getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-                //getMap().animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -832,16 +831,15 @@ public class MainActivity extends AppCompatActivity implements
         mClusterManager.setOnClusterInfoWindowClickListener(this);
         mClusterManager.setOnClusterItemClickListener(this);
         mClusterManager.setOnClusterItemInfoWindowClickListener(this);
-        //mClusterManager.clearItems();
-        //getMap().setOnCameraIdleListener(mClusterManager);
+        mClusterManager.clearItems();
+        getMap().setOnCameraIdleListener(mClusterManager);
 
     }
 
     private Bitmap convertUrlToDrawable(String urlResource) throws IOException {
         URL url = new URL(Appconstant.weburl+urlResource);
-        BitmapFactory.Options o = new BitmapFactory.Options();
-        o.inSampleSize = 2;
-        return Bitmap.createScaledBitmap(BitmapFactory.decodeStream(url.openConnection().getInputStream(),null,o),40,40,true);
+
+        return BitmapFactory.decodeStream(url.openConnection().getInputStream());
     }
 
 }

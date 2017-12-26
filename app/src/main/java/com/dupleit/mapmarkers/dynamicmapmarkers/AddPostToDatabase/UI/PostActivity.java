@@ -49,6 +49,7 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import id.zelory.compressor.Compressor;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -220,7 +221,13 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
         pDialog.setCancelable(false);
         showpDialog();
         File file = new File(mediaPath);
-        ProgressRequestBody fileBody = new ProgressRequestBody(file, this);
+        File compressedImageFile = null;
+        try {
+            compressedImageFile = new Compressor(this).compressToFile(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ProgressRequestBody fileBody = new ProgressRequestBody(compressedImageFile, this);
         MultipartBody.Part fileToUpload = MultipartBody.Part.createFormData("POST_IMAGE", file.getName(), fileBody);
         if (!checkInternetState.getInstance(PostActivity.this).isOnline()) {
             hidepDialog();
@@ -238,6 +245,8 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
                         Toast.makeText(PostActivity.this, "Post uploaded successfully", Toast.LENGTH_SHORT).show();
                         Intent intent= new Intent(PostActivity.this,MainActivity.class);
                         // intent.putExtra("studentId",getStudentID());
+                        //startActivityIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
                         startActivity(intent);
                     } else {
                         Toast.makeText(PostActivity.this, "post not uploaded", Toast.LENGTH_SHORT).show();
@@ -360,7 +369,7 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
                         Country = country;
                     Log.d("location",""+currentLocation);
 
-                    Toast.makeText(this, "location  "+currentLocation, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this, "location  "+currentLocation, Toast.LENGTH_SHORT).show();
                 }
 
             }

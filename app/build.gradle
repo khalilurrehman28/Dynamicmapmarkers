@@ -59,6 +59,7 @@ dependencies {
     implementation 'hani.momanii.supernova_emoji_library:supernova-emoji-library:0.0.2'
     implementation 'de.hdodenhof:circleimageview:2.1.0'
     implementation 'com.nightonke:boommenu:2.1.1'
+    implementation 'id.zelory:compressor:2.1.0'
 
     //firebase Service
     testImplementation 'junit:junit:4.12'
