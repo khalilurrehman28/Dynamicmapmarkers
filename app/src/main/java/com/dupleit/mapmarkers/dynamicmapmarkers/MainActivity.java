@@ -557,6 +557,7 @@ public class MainActivity extends AppCompatActivity implements
 
                 address = loactionAddress.getAddressLine(0);
                 address1 = loactionAddress.getAddressLine(1);
+                Toast.makeText(this, "add "+address, Toast.LENGTH_SHORT).show();
                 city = loactionAddress.getLocality();
                 state = loactionAddress.getAdminArea();
                 country = loactionAddress.getCountryName();
@@ -568,7 +569,7 @@ public class MainActivity extends AppCompatActivity implements
 
                     if (!TextUtils.isEmpty(address1))
                         currentLocation+="\n"+address1;
-                    if (!TextUtils.isEmpty(city))
+                    /*if (!TextUtils.isEmpty(city))
                     {
                         currentLocation+="\n"+city;
                         if (!TextUtils.isEmpty(postalCode))
@@ -584,10 +585,10 @@ public class MainActivity extends AppCompatActivity implements
                     currentLocation+="\n"+state;
 
                     if (!TextUtils.isEmpty(country))
-                        currentLocation+="\n"+country;
+                        currentLocation+="\n"+country;*/
                     Log.d("location",""+currentLocation);
                     current_location = currentLocation;
-                    //Toast.makeText(this, "location  "+currentLocation, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "location  "+address1, Toast.LENGTH_SHORT).show();
                 }
 
             }
