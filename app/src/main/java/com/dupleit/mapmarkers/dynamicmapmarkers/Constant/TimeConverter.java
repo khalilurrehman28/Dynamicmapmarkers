@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Created by khalil on 11/7/17.
+ * Created by mandeep on 24/12/17.
  */
 
 public class TimeConverter {

@@ -133,7 +133,7 @@ public class PostActivity extends AppCompatActivity implements GoogleApiClient.C
                     if (latitude != 0.0 && longitude!= 0.0){
                         Log.e("getLocation","address "+Address+"address1 "+Address1+"city "+City+"state "+State+"country "+Country+"postalCode "+PostalCode);
                         uploadYourPost(mediaPath,post_des);
-                        Toast.makeText(PostActivity.this, "address "+Address+" address1 "+Address1+" city "+City+" state "+State+" country "+Country+" postalCode "+PostalCode, Toast.LENGTH_LONG).show();
+                        //Toast.makeText(PostActivity.this, "address "+Address+" address1 "+Address1+" city "+City+" state "+State+" country "+Country+" postalCode "+PostalCode, Toast.LENGTH_LONG).show();
                     }else {
                         Toast.makeText(PostActivity.this, "We don't find your location", Toast.LENGTH_SHORT).show();
                     }

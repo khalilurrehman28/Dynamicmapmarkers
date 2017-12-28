@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements
                     }
                 } else {
                     Log.d("TAG","@@@ PERMISSIONS Denied");
-                    Toast.makeText(this, "PERMISSIONS Denied", Toast.LENGTH_LONG).show();
+                    showToast("PERMISSIONS Denied");
                 }
             }
             break;
@@ -329,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                    showToast("permission denied");
                 }
                 return;
             }
@@ -359,7 +359,8 @@ public class MainActivity extends AppCompatActivity implements
             }
 
         } else {
-            Toast.makeText(getApplication(), "Camera not supported", Toast.LENGTH_LONG).show();
+            showToast("Camera not supported");
+            //Toast.makeText(getApplication(), "Camera not supported", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -526,7 +527,7 @@ public class MainActivity extends AppCompatActivity implements
             public void run() {
                 new backgroundoperation(mClusterManager,getMap(),getApplicationContext()).execute();
             }
-        }, 2000);
+        }, 1000);
 
     }
 
@@ -592,7 +593,8 @@ public class MainActivity extends AppCompatActivity implements
 
             }
             else
-                Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                showToast("Something went wrong");
+                //Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -776,7 +778,7 @@ public class MainActivity extends AppCompatActivity implements
         }else{
             // Show a toast with some info when the cluster is clicked.
             String firstName = cluster.getItems().iterator().next().getUSERNAME();
-            Toast.makeText(this, cluster.getSize() + " (including " + firstName + ")", Toast.LENGTH_SHORT).show();
+            showToast(cluster.getSize() + " (including " + firstName + ")");
             LatLngBounds.Builder builder = LatLngBounds.builder();
             for (ClusterItem item : cluster.getItems()) {
                 builder.include(item.getPosition());

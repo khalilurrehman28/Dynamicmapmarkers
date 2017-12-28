@@ -45,7 +45,7 @@ public class gridUiActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         initilize();
 
-        //setTitle("");
+        setTitle("Uploads");
     }
     private void initilize() {
         ArrayList<LatLng> coordinates = getIntent().getParcelableArrayListExtra("userlatlang");
